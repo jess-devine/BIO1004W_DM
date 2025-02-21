@@ -1,0 +1,75 @@
+---
+title: "data_wrangling"
+author: "Jess Devine"
+date: "2025-02-20"
+output: pdf_document
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load packages
+library(tidyverse)
+```
+
+## R Markdown
+
+```{r import data}
+# import data 
+setwd("/home/jess/GIT/BIO1004W_DM/data")
+data <- read_csv2("Chick_condition.csv")
+
+# checking data
+head(data)
+tail(data)
+```
+
+```{r data wrangling}
+# remove all "n/a" to make NA
+
+tidy_data <- data %>%
+  mutate(across(everything(), ~ na_if(.x, "n/a")))
+
+# correct data types
+tidy_data <- data %>%
+  mutate(
+     # Convert to Date
+    Ringingdate = as.Date(Ringingdate, format = "%d/%m/%Y"),
+    `Lay date` = as.Date(`Lay date`, format = "%Y-%m-%d"),
+    
+    # Convert dates dynamically
+    `Fledge date` = case_when(
+      str_detect(`Fledge date`, "^\\d{4}/") ~ ymd(`Fledge date`),  # If starts with YYYY/, use YMD
+      TRUE ~ dmy(`Fledge date`)  # Otherwise, assume DMY
+    ), 
+    
+    # Convert to double
+    Groupsize = as.double(Groupsize),  
+    Chickmass = as.double(Chickmass),   
+     Tarsuslength = as.double(Tarsuslength),
+    
+    # Convert to factor
+    Year = as.factor(Year), 
+    Group = as.factor(Group),
+    Nest = as.factor(Nest)
+  )
+head(tidy_data)
+
+# demographic groups to long format
+tidy_data <- tidy_data %>%
+  pivot_longer(cols = c(Afem, Amal, SA, Juv), 
+               names_to = "Age_Sex_Class", 
+               values_to = "Count") %>%
+  mutate(Count = as.integer(Count), # Convert to integer
+         Age_Sex_Class = as.factor(Age_Sex_Class) # convert to factor 
+         ) 
+
+head(tidy_data)
+colSums(is.na(tidy_data))
+```
+
+```{r data analysis}
+
+```
