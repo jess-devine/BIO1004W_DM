@@ -5,16 +5,15 @@ date: "2025-02-20"
 output: pdf_document
 ---
 
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 # Load packages
 library(tidyverse)
+library(patchwork)
 ```
 
-## R Markdown
+## R Markdown 
 
 ```{r import data}
 # import data 
@@ -23,14 +22,12 @@ data <- read_csv2("Chick_condition.csv")
 
 # checking data
 head(data)
-tail(data)
+tail(data) # NOTE: `Fledge date` changes format 
+summary(data)
+n_a_counts <- sapply(data, function(x) if (is.character(x)) sum(x == "n/a", na.rm = TRUE) else 0); n_a_counts
 ```
 
 ```{r data wrangling}
-# remove all "n/a" to make NA
-
-tidy_data <- data %>%
-  mutate(across(everything(), ~ na_if(.x, "n/a")))
 
 # correct data types
 tidy_data <- data %>%
@@ -38,7 +35,7 @@ tidy_data <- data %>%
      # Convert to Date
     Ringingdate = as.Date(Ringingdate, format = "%d/%m/%Y"),
     `Lay date` = as.Date(`Lay date`, format = "%Y-%m-%d"),
-    
+    `Hatch date` = as.Date(`Hatch date`, format = "%Y-%m-%d"),
     # Convert dates dynamically
     `Fledge date` = case_when(
       str_detect(`Fledge date`, "^\\d{4}/") ~ ymd(`Fledge date`),  # If starts with YYYY/, use YMD
@@ -47,29 +44,62 @@ tidy_data <- data %>%
     
     # Convert to double
     Groupsize = as.double(Groupsize),  
-    Chickmass = as.double(Chickmass),   
-     Tarsuslength = as.double(Tarsuslength),
+    Chickmass = as.double(Chickmass),
+    Tarsuslength = as.double(Tarsuslength),
     
     # Convert to factor
     Year = as.factor(Year), 
     Group = as.factor(Group),
     Nest = as.factor(Nest)
   )
-head(tidy_data)
 
-# demographic groups to long format
+# demographic groups to long format and compute incubation period
 tidy_data <- tidy_data %>%
-  pivot_longer(cols = c(Afem, Amal, SA, Juv), 
-               names_to = "Age_Sex_Class", 
-               values_to = "Count") %>%
-  mutate(Count = as.integer(Count), # Convert to integer
-         Age_Sex_Class = as.factor(Age_Sex_Class) # convert to factor 
+  pivot_longer(
+    cols = c(Afem, Amal, SA, Juv), 
+    names_to = "Age_Sex_Class", 
+    values_to = "Count") %>%
+      mutate(
+        Count = as.integer(Count), # Convert to integer
+        Age_Sex_Class = as.factor(Age_Sex_Class), # convert to factor
+        incubation_period = as.numeric(`Hatch date` - `Lay date`)  # Compute incubation period 
          ) 
 
 head(tidy_data)
 colSums(is.na(tidy_data))
 ```
 
-```{r data analysis}
+
+```{r analysis}
+# Function to create scatterplots
+create_scatter <- function(data, x_var, y_var, x_label, y_label) {
+  ggplot(data, aes(x = {{ x_var }}, y = {{ y_var }})) +
+    geom_point(color = "black", alpha = 0.7, size = 1) +  
+    theme_minimal() +
+    labs(x = x_label, y = y_label)
+}
+
+# Function to create boxplots
+create_boxplot <- function(data, x_var, y_var, x_label, y_label) {
+  ggplot(data, aes(x = as.factor({{ x_var }}), y = {{ y_var }})) +
+    geom_boxplot() +
+    theme_minimal() +
+    labs(x = x_label, y = y_label)
+}
+
+# Incubation Period Plots
+p1 <- create_scatter(tidy_data, Rainfallspecific, incubation_period, "", "Incubation Period (days)")
+p2 <- create_scatter(tidy_data, meanmaxTspecific, incubation_period, "", "")
+p3 <- create_boxplot(tidy_data, Groupsize, incubation_period, "", "")
+
+# Chick Mass Plots
+p4 <- create_scatter(tidy_data, Rainfallspecific, Chickmass, "Rainfall (mm)", "Chick Mass (g)")
+p5 <- create_scatter(tidy_data, meanmaxTspecific, Chickmass, "Mean Max Temperature (°C)", "")
+p6 <- create_boxplot(tidy_data, Groupsize, Chickmass, "Group Size", "")
+
+# Arrange in 2x3 panel layout
+(p1 + p2 + p3) / (p4 + p5 + p6)
 
 ```
+
+Figure 1: The incubation period of eggs (top panel) and mass of chicks (bottom panel) plotted against rainfall in mm (left panel), mean maximum temperature °C (middle panel) and group size (right panel). 
