@@ -1,5 +1,5 @@
 ---
-title: "data_wrangling"
+title: "Data Managment Task"
 author: "Jess Devine"
 date: "2025-02-20"
 output: pdf_document
@@ -11,6 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load packages
 library(tidyverse)
 library(patchwork)
+library(dplyr)
+library(car)
+library(FSA) 
 ```
 
 ## R Markdown 
@@ -70,11 +73,11 @@ colSums(is.na(tidy_data))
 ```
 
 
-```{r analysis}
+```{r plots for data exploration}
 # Function to create scatterplots
 create_scatter <- function(data, x_var, y_var, x_label, y_label) {
   ggplot(data, aes(x = {{ x_var }}, y = {{ y_var }})) +
-    geom_point(color = "black", alpha = 0.7, size = 1) +  
+    geom_point(color = "black", alpha = 0.7, size = 0.5) +  
     theme_minimal() +
     labs(x = x_label, y = y_label)
 }
@@ -103,3 +106,17 @@ p6 <- create_boxplot(tidy_data, Groupsize, Chickmass, "Group Size", "")
 ```
 
 Figure 1: The incubation period of eggs (top panel) and mass of chicks (bottom panel) plotted against rainfall in mm (left panel), mean maximum temperature °C (middle panel) and group size (right panel). 
+
+```{r analysis}
+# Shapiro-Wilk test for normality
+shapiro.test(tidy_data$incubation_period)  
+shapiro.test(tidy_data$Chickmass) 
+
+# Kruskal-Wallis Test 
+kruskal.test(incubation_period ~ as.factor(Groupsize), data = tidy_data)
+kruskal.test(Chickmass ~ as.factor(Groupsize), data = tidy_data)
+
+# Dunn’s test for pairwise comparisons
+dunnTest(incubation_period ~ as.factor(Groupsize), data = tidy_data, method = "bonferroni")
+dunnTest(Chickmass ~ as.factor(Groupsize), data = tidy_data, method = "bonferroni")
+``` 
