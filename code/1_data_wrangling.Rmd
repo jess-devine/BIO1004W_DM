@@ -14,6 +14,9 @@ library(patchwork)
 library(dplyr)
 library(car)
 library(FSA) 
+library(lubridate)
+library(stringr)
+
 ```
 
 ## R Markdown 
@@ -32,29 +35,44 @@ n_a_counts <- sapply(data, function(x) if (is.character(x)) sum(x == "n/a", na.r
 
 ```{r data wrangling}
 
-# correct data types
+# Replace "n/a" and empty strings with proper NA
+data <- data %>%
+  mutate(across(where(is.character), ~ na_if(.x, "n/a"))) %>%
+  mutate(across(where(is.character), ~ na_if(.x, ""))) 
+
 tidy_data <- data %>%
   mutate(
-     # Convert to Date
-    Ringingdate = as.Date(Ringingdate, format = "%d/%m/%Y"),
-    `Lay date` = as.Date(`Lay date`, format = "%Y-%m-%d"),
-    `Hatch date` = as.Date(`Hatch date`, format = "%Y-%m-%d"),
-    # Convert dates dynamically
+    # Convert to Date safely, replacing invalid values with NA
+    Ringingdate = suppressWarnings(as.Date(Ringingdate, format = "%d/%m/%Y")),
+    `Lay date` = suppressWarnings(as.Date(`Lay date`, format = "%Y-%m-%d")),
+    `Hatch date` = suppressWarnings(as.Date(`Hatch date`, format = "%Y-%m-%d")),
+    
+    # Handle mixed Fledge date formats and invalid cases
     `Fledge date` = case_when(
-      str_detect(`Fledge date`, "^\\d{4}/") ~ ymd(`Fledge date`),  # If starts with YYYY/, use YMD
-      TRUE ~ dmy(`Fledge date`)  # Otherwise, assume DMY
-    ), 
+      str_detect(`Fledge date`, "^\\d{4}/") ~ suppressWarnings(ymd(str_replace(`Fledge date`, "/", "-"))),
+      str_detect(`Fledge date`, "^\\d{2}/\\d{2}/\\d{4}$") ~ suppressWarnings(dmy(`Fledge date`)),
+      TRUE ~ NA_Date_
+    ),
     
-    # Convert to double
-    Groupsize = as.double(Groupsize),  
-    Chickmass = as.double(Chickmass),
-    Tarsuslength = as.double(Tarsuslength),
-    
+    # Convert to numeric safely, replacing non-numeric values with NA
+    Groupsize = suppressWarnings(as.numeric(Groupsize)),
+    Chickmass = suppressWarnings(as.numeric(Chickmass)),
+    Tarsuslength = suppressWarnings(as.numeric(Tarsuslength)),
+
     # Convert to factor
-    Year = as.factor(Year), 
+    Year = as.factor(Year),
     Group = as.factor(Group),
     Nest = as.factor(Nest)
   )
+
+# Identify problematic rows where NA was introduced
+problematic_rows <- data %>%
+  filter(
+    is.na(tidy_data$`Fledge date`) & !is.na(`Fledge date`) |
+    is.na(tidy_data$Tarsuslength) & !is.na(Tarsuslength)
+  )
+
+print(problematic_rows)
 
 # demographic groups to long format and compute incubation period
 tidy_data <- tidy_data %>%
