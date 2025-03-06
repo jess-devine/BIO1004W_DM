@@ -8,7 +8,7 @@ CC BY 4.0
 Middleton K. (2022). Hot-dry weather is associated with worse reproductive outcomes regardless of group composition in a long-lived cooperatively breeding bird. University of Cape Town accessible at https://zivahub.uct.ac.za/articles/dataset/Hot-dry_weather_is_associated_with_worse_reproductive_outcomes_regardless_of_group_composition_in_a_long-lived_cooperatively_breeding_bird/27980420?file=51027938 
 
 DATA & CODE FILE OVERVIEW
-This data repository consist of four data files, four code scripts, and this README document, with the following data and code filenames and variables
+This data repository consist of one data file, one code script, and this README document, with the following data and code filenames and variables
 
 Data files and variables
 
@@ -33,7 +33,8 @@ meamaxTspecific - the average daily mean maximum temperature (in degrees Celsius
 Rainfallspecific - the total amount of rainfall (in mm) that occurred between hatching and the ringingdate
 
 Code scripts and workflows
-
+1_data_tidying.Rmd 
+2_data_analysis.Rmd 
 
 # SOFTWARE VERSIONS
 
