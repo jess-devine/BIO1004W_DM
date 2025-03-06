@@ -2,7 +2,7 @@
 title: "Data Management and Reproducible Research Deliverable: <br> Data Tidying"
 author: "Jess Devine"
 date: "2025-02-20"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -30,53 +30,41 @@ head(data[,1:8])
 tail(data[,1:8])
 head(data[,9:17])
 tail(data[,9:17]) # NOTE: `Fledge date` changes format 
-n_a_counts <- sapply(data, function(x) if (is.character(x)) sum(x == "n/a", na.rm = TRUE) else 0); n_a_counts
+n_a_counts <- sapply(data, function(x) {
+  if (is.character(x)) {
+    sum(x == "n/a") 
+  } else {
+    0
+  }
+}) 
+n_a_counts
 ```
 
 ### Data tyding 
 
 ```{r data tidying}
+# Identify columns
+date_cols <- c("Lay date", "Fledge date", "Hatch date", "Ringingdate")
+numeric_cols <- c("Groupsize", "Chickmass", "Tarsuslength")
+factor_cols <- c("Year", "Group", "Nest")
 
-# Replace "n/a" and empty strings with proper NA
-tidy_data  <- data %>%
-  mutate(across(where(is.character), ~ na_if(.x, "n/a"))) %>%
-  mutate(across(where(is.character), ~ na_if(.x, ""))) 
-n_a_counts <- sapply(data, function(x) if (is.character(x)) sum(x == "n/a", na.rm = TRUE) else 0); n_a_counts
-
-tidy_data <- tidy_data  %>%
-  mutate(
-    # Convert to Date safely, replacing invalid values with NA
-    `Lay date` = suppressWarnings(as.Date(`Lay date`, format = "%Y-%m-%d")),
-    `Hatch date` = suppressWarnings(as.Date(`Hatch date`, format = "%Y-%m-%d")),
-    Ringingdate = suppressWarnings(as.Date(Ringingdate, format = "%d/%m/%Y")),
-    
-    # Handle mixed Fledge date formats and invalid cases
-    `Fledge date` = case_when(
-      str_detect(`Fledge date`, "^\\d{4}/") ~ suppressWarnings(ymd(str_replace(`Fledge date`, "/", "-"))),
-      str_detect(`Fledge date`, "^\\d{2}/\\d{2}/\\d{4}$") ~ suppressWarnings(dmy(`Fledge date`)),
-      TRUE ~ NA_Date_
-    ),
-    
-    # Convert to numeric safely, replacing non-numeric values with NA
-    Groupsize = suppressWarnings(as.numeric(Groupsize)),
-    Chickmass = suppressWarnings(as.numeric(Chickmass)),
-    Tarsuslength = suppressWarnings(as.numeric(Tarsuslength)),
-
-    # Convert to factor
-    Year = as.factor(Year),
-    Group = as.factor(Group),
-    Nest = as.factor(Nest)
-  )
-
-# Identify problematic rows where NA was introduced
-problematic_rows <- data %>%
-  filter(
-    is.na(tidy_data$`Fledge date`) & !is.na(`Fledge date`) |
-    is.na(tidy_data$Tarsuslength) & !is.na(Tarsuslength)
-  )
-length(problematic_rows)
-print(problematic_rows[,1:8])
-print(problematic_rows[,9:17])
+tidy_data <- data %>%
+  # Replace "n/a" and "" with NA for character columns
+  mutate(across(where(is.character), ~ na_if(., "n/a"))) %>%
+  mutate(across(where(is.character), ~ na_if(., ""))) %>%
+  
+  # Convert to date (handling multiple formats)
+  mutate(across(all_of(date_cols), ~ parse_date_time(., orders = c("Y-m-d", "d/m/Y", "Y/m/d")))) %>%
+  
+  # Replace commas with periods in Tarsuslength and convert it to numeric
+  mutate(Tarsuslength = as.numeric(gsub(",", ".", Tarsuslength))) %>%
+  
+  # Convert to numeric for other columns
+  mutate(across(all_of(numeric_cols), ~ suppressWarnings(as.numeric(.)))) %>%
+  
+  # Convert to factor for categorical columns
+  mutate(across(all_of(factor_cols), as.factor))
+  
 
 # demographic groups to long format and compute incubation period
 tidy_data <- tidy_data %>%
@@ -90,7 +78,10 @@ tidy_data <- tidy_data %>%
         incubation_period = as.numeric(`Hatch date` - `Lay date`)  # Compute incubation period 
          ) 
 
-head(tidy_data)
+summary(tidy_data)
 colSums(is.na(tidy_data))
 ```
 
+  ```{r test}
+  
+  ```
