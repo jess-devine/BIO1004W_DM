@@ -409,8 +409,8 @@ summary(data)</code></pre>
 ##  Mean   :31.56    Mean   :196.3   
 ##  3rd Qu.:32.32    3rd Qu.:274.2   
 ##  Max.   :34.71    Max.   :542.0</code></pre>
-<pre class="r"><code>length(data)</code></pre>
-<pre><code>## [1] 17</code></pre>
+<pre class="r"><code>dim(data)</code></pre>
+<pre><code>## [1] 88 17</code></pre>
 <pre class="r"><code>head(data[,1:8])</code></pre>
 <pre><code>## # A tibble: 6 × 8
 ##   Year      Group        Nest         Groupsize Afem  Amal  SA    Juv  
@@ -486,20 +486,74 @@ tidy_data &lt;- data %&gt;%
   mutate(across(where(is.character), ~ na_if(., &quot;n/a&quot;))) %&gt;%
   mutate(across(where(is.character), ~ na_if(., &quot;&quot;))) %&gt;%
   
-  # Convert to date (handling multiple formats)
-  mutate(across(all_of(date_cols), ~ parse_date_time(., orders = c(&quot;Y-m-d&quot;, &quot;d/m/Y&quot;, &quot;Y/m/d&quot;)))) %&gt;%
+   # Convert to date (handling multiple formats) and remove time part
+  mutate(across(all_of(date_cols), 
+                ~ as.Date(parse_date_time(., orders = c(&quot;Y-m-d&quot;, &quot;d/m/Y&quot;, &quot;Y/m/d&quot;))))) %&gt;%
   
   # Replace commas with periods in Tarsuslength and convert it to numeric
   mutate(Tarsuslength = as.numeric(gsub(&quot;,&quot;, &quot;.&quot;, Tarsuslength))) %&gt;%
   
   # Convert to numeric for other columns
-  mutate(across(all_of(numeric_cols), ~ suppressWarnings(as.numeric(.)))) %&gt;%
+  mutate(across(all_of(numeric_cols), as.numeric)) %&gt;%
   
   # Convert to factor for categorical columns
   mutate(across(all_of(factor_cols), as.factor))
-  
 
-# demographic groups to long format and compute incubation period
+dim(tidy_data)</code></pre>
+<pre><code>## [1] 88 17</code></pre>
+<pre class="r"><code>summary(tidy_data)</code></pre>
+<pre><code>##         Year             Group              Nest      Groupsize    
+##  2006-2007:11   Karan Khaya :11   Karan Khaya :11   Min.   :2.000  
+##  2007-2008: 9   Addger      : 9   Addger      :10   1st Qu.:3.000  
+##  2013-2014: 9   Janovsky    : 8   Janovsky    : 8   Median :4.000  
+##  2004-2005: 8   Johnniesdale: 8   Hull        : 5   Mean   :4.233  
+##  2017-2018: 8   Copenhagen  : 7   Johnniesdale: 5   3rd Qu.:5.000  
+##  2019-2020: 7   Rhino Road  : 7   Rhino Road  : 5   Max.   :7.000  
+##  (Other)  :36   (Other)     :38   (Other)     :44   NA&#39;s   :2      
+##      Afem               Amal                SA                Juv           
+##  Length:88          Length:88          Length:88          Length:88         
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##                                                                             
+##     Lay date           Fledge date           Hatch date        
+##  Min.   :2004-10-15   Min.   :2005-02-18   Min.   :2004-11-24  
+##  1st Qu.:2007-07-27   1st Qu.:2007-02-21   1st Qu.:2007-09-05  
+##  Median :2013-10-29   Median :2014-02-14   Median :2013-12-08  
+##  Mean   :2013-01-18   Mean   :2013-02-21   Mean   :2013-02-26  
+##  3rd Qu.:2017-10-20   3rd Qu.:2018-01-29   3rd Qu.:2017-11-28  
+##  Max.   :2020-11-08   Max.   :2029-02-18   Max.   :2020-12-18  
+##                       NA&#39;s   :23                               
+##   Ringingdate           Chickmass     Tarsuslength     Ringingage   
+##  Min.   :2005-02-13   Min.   :2150   Min.   :128.0   Min.   :53.00  
+##  1st Qu.:2007-11-16   1st Qu.:2765   1st Qu.:144.0   1st Qu.:72.00  
+##  Median :2014-02-17   Median :3100   Median :151.3   Median :75.00  
+##  Mean   :2013-05-15   Mean   :3079   Mean   :150.9   Mean   :73.26  
+##  3rd Qu.:2018-02-10   3rd Qu.:3260   3rd Qu.:156.0   3rd Qu.:76.00  
+##  Max.   :2022-02-15   Max.   :4150   Max.   :179.0   Max.   :81.00  
+##                       NA&#39;s   :1      NA&#39;s   :2                      
+##  meanmaxTspecific Rainfallspecific
+##  Min.   :29.06    Min.   : 30.4   
+##  1st Qu.:30.75    1st Qu.:118.8   
+##  Median :31.52    Median :150.6   
+##  Mean   :31.56    Mean   :196.3   
+##  3rd Qu.:32.32    3rd Qu.:274.2   
+##  Max.   :34.71    Max.   :542.0   
+## </code></pre>
+<pre class="r"><code>colSums(is.na(tidy_data))</code></pre>
+<pre><code>##             Year            Group             Nest        Groupsize 
+##                0                0                0                2 
+##             Afem             Amal               SA              Juv 
+##                6                6                6                6 
+##         Lay date      Fledge date       Hatch date      Ringingdate 
+##                0               23                0                0 
+##        Chickmass     Tarsuslength       Ringingage meanmaxTspecific 
+##                1                2                0                0 
+## Rainfallspecific 
+##                0</code></pre>
+<pre class="r"><code># demographic groups to long format and compute incubation period
 tidy_data &lt;- tidy_data %&gt;%
   pivot_longer(
     cols = c(Afem, Amal, SA, Juv), 
@@ -511,7 +565,9 @@ tidy_data &lt;- tidy_data %&gt;%
         incubation_period = as.numeric(`Hatch date` - `Lay date`)  # Compute incubation period 
          ) 
 
-summary(tidy_data)</code></pre>
+dim(tidy_data)</code></pre>
+<pre><code>## [1] 352  16</code></pre>
+<pre class="r"><code>summary(tidy_data)</code></pre>
 <pre><code>##         Year              Group               Nest       Groupsize    
 ##  2006-2007: 44   Karan Khaya : 44   Karan Khaya : 44   Min.   :2.000  
 ##  2007-2008: 36   Addger      : 36   Addger      : 40   1st Qu.:3.000  
@@ -520,39 +576,39 @@ summary(tidy_data)</code></pre>
 ##  2017-2018: 32   Copenhagen  : 28   Johnniesdale: 20   3rd Qu.:5.000  
 ##  2019-2020: 28   Rhino Road  : 28   Rhino Road  : 20   Max.   :7.000  
 ##  (Other)  :144   (Other)     :152   (Other)     :176   NA&#39;s   :8      
-##     Lay date                       Fledge date                    
-##  Min.   :2004-10-15 00:00:00.00   Min.   :2005-02-18 00:00:00.00  
-##  1st Qu.:2007-07-27 06:00:00.00   1st Qu.:2007-02-21 00:00:00.00  
-##  Median :2013-10-29 00:00:00.00   Median :2014-02-14 00:00:00.00  
-##  Mean   :2013-01-18 01:21:49.08   Mean   :2013-02-21 09:58:09.23  
-##  3rd Qu.:2017-10-20 12:00:00.00   3rd Qu.:2018-01-29 00:00:00.00  
-##  Max.   :2020-11-08 00:00:00.00   Max.   :2029-02-18 00:00:00.00  
-##                                   NA&#39;s   :92                      
-##    Hatch date                      Ringingdate                    
-##  Min.   :2004-11-24 00:00:00.00   Min.   :2005-02-13 00:00:00.00  
-##  1st Qu.:2007-09-05 00:00:00.00   1st Qu.:2007-11-16 18:00:00.00  
-##  Median :2013-12-08 00:00:00.00   Median :2014-02-17 12:00:00.00  
-##  Mean   :2013-02-26 18:16:21.81   Mean   :2013-05-15 04:05:27.26  
-##  3rd Qu.:2017-11-28 12:00:00.00   3rd Qu.:2018-02-10 12:00:00.00  
-##  Max.   :2020-12-18 00:00:00.00   Max.   :2022-02-15 00:00:00.00  
-##                                                                   
-##    Chickmass     Tarsuslength     Ringingage    meanmaxTspecific
-##  Min.   :2150   Min.   :128.0   Min.   :53.00   Min.   :29.06   
-##  1st Qu.:2750   1st Qu.:144.0   1st Qu.:72.00   1st Qu.:30.75   
-##  Median :3100   Median :151.3   Median :75.00   Median :31.52   
-##  Mean   :3079   Mean   :150.9   Mean   :73.26   Mean   :31.56   
-##  3rd Qu.:3270   3rd Qu.:156.0   3rd Qu.:76.00   3rd Qu.:32.32   
-##  Max.   :4150   Max.   :179.0   Max.   :81.00   Max.   :34.71   
-##  NA&#39;s   :4      NA&#39;s   :8                                       
-##  Rainfallspecific Age_Sex_Class     Count       incubation_period
-##  Min.   : 30.4    Afem:88       Min.   :0.000   Min.   :29.0     
-##  1st Qu.:118.8    Amal:88       1st Qu.:1.000   1st Qu.:39.0     
-##  Median :150.6    Juv :88       Median :1.000   Median :40.0     
-##  Mean   :196.3    SA  :88       Mean   :1.052   Mean   :39.7     
-##  3rd Qu.:274.2                  3rd Qu.:1.000   3rd Qu.:40.0     
-##  Max.   :542.0                  Max.   :4.000   Max.   :47.0     
-##                                 NA&#39;s   :24</code></pre>
-<pre class="r"><code>colSums(is.na(tidy_data))</code></pre>
+##     Lay date           Fledge date           Hatch date        
+##  Min.   :2004-10-15   Min.   :2005-02-18   Min.   :2004-11-24  
+##  1st Qu.:2007-07-27   1st Qu.:2007-02-21   1st Qu.:2007-09-05  
+##  Median :2013-10-29   Median :2014-02-14   Median :2013-12-08  
+##  Mean   :2013-01-18   Mean   :2013-02-21   Mean   :2013-02-26  
+##  3rd Qu.:2017-10-20   3rd Qu.:2018-01-29   3rd Qu.:2017-11-28  
+##  Max.   :2020-11-08   Max.   :2029-02-18   Max.   :2020-12-18  
+##                       NA&#39;s   :92                               
+##   Ringingdate           Chickmass     Tarsuslength     Ringingage   
+##  Min.   :2005-02-13   Min.   :2150   Min.   :128.0   Min.   :53.00  
+##  1st Qu.:2007-11-16   1st Qu.:2750   1st Qu.:144.0   1st Qu.:72.00  
+##  Median :2014-02-17   Median :3100   Median :151.3   Median :75.00  
+##  Mean   :2013-05-15   Mean   :3079   Mean   :150.9   Mean   :73.26  
+##  3rd Qu.:2018-02-10   3rd Qu.:3270   3rd Qu.:156.0   3rd Qu.:76.00  
+##  Max.   :2022-02-15   Max.   :4150   Max.   :179.0   Max.   :81.00  
+##                       NA&#39;s   :4      NA&#39;s   :8                      
+##  meanmaxTspecific Rainfallspecific Age_Sex_Class     Count      
+##  Min.   :29.06    Min.   : 30.4    Afem:88       Min.   :0.000  
+##  1st Qu.:30.75    1st Qu.:118.8    Amal:88       1st Qu.:1.000  
+##  Median :31.52    Median :150.6    Juv :88       Median :1.000  
+##  Mean   :31.56    Mean   :196.3    SA  :88       Mean   :1.052  
+##  3rd Qu.:32.32    3rd Qu.:274.2                  3rd Qu.:1.000  
+##  Max.   :34.71    Max.   :542.0                  Max.   :4.000  
+##                                                  NA&#39;s   :24     
+##  incubation_period
+##  Min.   :29.0     
+##  1st Qu.:39.0     
+##  Median :40.0     
+##  Mean   :39.7     
+##  3rd Qu.:40.0     
+##  Max.   :47.0     
+## </code></pre>
+<pre class="r"><code>colSums(is.na(tidy_data)) # NAs are multiplied by 4 here due to duplication</code></pre>
 <pre><code>##              Year             Group              Nest         Groupsize 
 ##                 0                 0                 0                 8 
 ##          Lay date       Fledge date        Hatch date       Ringingdate 

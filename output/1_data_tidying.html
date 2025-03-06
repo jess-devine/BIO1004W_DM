@@ -364,9 +364,9 @@ Deliverable: <br> Data Tidying</h1>
 data &lt;- read_csv2(here(&quot;data&quot;, &quot;Chick_condition.csv&quot;))</code></pre>
 <pre><code>## ℹ Using &quot;&#39;,&#39;&quot; as decimal and &quot;&#39;.&#39;&quot; as grouping mark. Use `read_delim()` for more control.</code></pre>
 <pre><code>## Rows: 88 Columns: 17
-## ── Column specification ─────────────────────────────────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## Delimiter: &quot;;&quot;
-## chr  (12): Year, Group, Nest, Groupsize, Afem, Amal, SA, Juv, Fledge date, Ringingdate, Chickmass, Tarsus...
+## chr  (12): Year, Group, Nest, Groupsize, Afem, Amal, SA, Juv, Fledge date, Ringingdate, Chickmass, Tarsuslength
 ## dbl   (3): Ringingage, meanmaxTspecific, Rainfallspecific
 ## date  (2): Lay date, Hatch date
 ## 
@@ -374,36 +374,29 @@ data &lt;- read_csv2(here(&quot;data&quot;, &quot;Chick_condition.csv&quot;))</c
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre class="r"><code># checking data
 summary(data)</code></pre>
-<pre><code>##      Year              Group               Nest            Groupsize             Afem          
-##  Length:88          Length:88          Length:88          Length:88          Length:88         
-##  Class :character   Class :character   Class :character   Class :character   Class :character  
-##  Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
-##                                                                                                
-##                                                                                                
-##                                                                                                
-##      Amal                SA                Juv               Lay date          Fledge date       
-##  Length:88          Length:88          Length:88          Min.   :2004-10-15   Length:88         
-##  Class :character   Class :character   Class :character   1st Qu.:2007-07-27   Class :character  
-##  Mode  :character   Mode  :character   Mode  :character   Median :2013-10-29   Mode  :character  
-##                                                           Mean   :2013-01-18                     
-##                                                           3rd Qu.:2017-10-20                     
-##                                                           Max.   :2020-11-08                     
-##    Hatch date         Ringingdate         Chickmass         Tarsuslength         Ringingage   
-##  Min.   :2004-11-24   Length:88          Length:88          Length:88          Min.   :53.00  
-##  1st Qu.:2007-09-05   Class :character   Class :character   Class :character   1st Qu.:72.00  
-##  Median :2013-12-08   Mode  :character   Mode  :character   Mode  :character   Median :75.00  
-##  Mean   :2013-02-26                                                            Mean   :73.26  
-##  3rd Qu.:2017-11-28                                                            3rd Qu.:76.00  
-##  Max.   :2020-12-18                                                            Max.   :81.00  
-##  meanmaxTspecific Rainfallspecific
-##  Min.   :29.06    Min.   : 30.4   
-##  1st Qu.:30.75    1st Qu.:118.8   
-##  Median :31.52    Median :150.6   
-##  Mean   :31.56    Mean   :196.3   
-##  3rd Qu.:32.32    3rd Qu.:274.2   
-##  Max.   :34.71    Max.   :542.0</code></pre>
-<pre class="r"><code>length(data)</code></pre>
-<pre><code>## [1] 17</code></pre>
+<pre><code>##      Year              Group               Nest            Groupsize             Afem               Amal                SA                Juv           
+##  Length:88          Length:88          Length:88          Length:88          Length:88          Length:88          Length:88          Length:88         
+##  Class :character   Class :character   Class :character   Class :character   Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                                                                                                         
+##                                                                                                                                                         
+##                                                                                                                                                         
+##     Lay date          Fledge date          Hatch date         Ringingdate         Chickmass         Tarsuslength         Ringingage    meanmaxTspecific
+##  Min.   :2004-10-15   Length:88          Min.   :2004-11-24   Length:88          Length:88          Length:88          Min.   :53.00   Min.   :29.06   
+##  1st Qu.:2007-07-27   Class :character   1st Qu.:2007-09-05   Class :character   Class :character   Class :character   1st Qu.:72.00   1st Qu.:30.75   
+##  Median :2013-10-29   Mode  :character   Median :2013-12-08   Mode  :character   Mode  :character   Mode  :character   Median :75.00   Median :31.52   
+##  Mean   :2013-01-18                      Mean   :2013-02-26                                                            Mean   :73.26   Mean   :31.56   
+##  3rd Qu.:2017-10-20                      3rd Qu.:2017-11-28                                                            3rd Qu.:76.00   3rd Qu.:32.32   
+##  Max.   :2020-11-08                      Max.   :2020-12-18                                                            Max.   :81.00   Max.   :34.71   
+##  Rainfallspecific
+##  Min.   : 30.4   
+##  1st Qu.:118.8   
+##  Median :150.6   
+##  Mean   :196.3   
+##  3rd Qu.:274.2   
+##  Max.   :542.0</code></pre>
+<pre class="r"><code>dim(data)</code></pre>
+<pre><code>## [1] 88 17</code></pre>
 <pre class="r"><code>head(data[,1:8])</code></pre>
 <pre><code>## # A tibble: 6 × 8
 ##   Year      Group        Nest         Groupsize Afem  Amal  SA    Juv  
@@ -426,111 +419,86 @@ summary(data)</code></pre>
 ## 6 2020-2021 York         York        2         1     1     0     0</code></pre>
 <pre class="r"><code>head(data[,9:17])</code></pre>
 <pre><code>## # A tibble: 6 × 9
-##   `Lay date` `Fledge date` `Hatch date` Ringingdate Chickmass Tarsuslength Ringingage meanmaxTspecific
-##   &lt;date&gt;     &lt;chr&gt;         &lt;date&gt;       &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;             &lt;dbl&gt;            &lt;dbl&gt;
-## 1 2004-10-20 26/02/2005    2004-11-29   14/02/2005  3400      n/a                  77             32.6
-## 2 2004-11-28 02/04/2005    2005-01-06   24/03/2005  2750      143                  77             32.0
-## 3 2004-11-16 21/03/2005    2004-12-26   14/03/2005  3000      153                  78             32.7
-## 4 2004-10-20 25/02/2005    2004-11-29   14/02/2005  3050      167                  77             32.6
-## 5 2004-11-26 31/03/2005    2005-01-05   24/03/2005  2250      149                  78             32.1
-## 6 2004-11-08 12/03/2005    2004-12-18   05/03/2005  2750      155                  77             32.7
-## # ℹ 1 more variable: Rainfallspecific &lt;dbl&gt;</code></pre>
+##   `Lay date` `Fledge date` `Hatch date` Ringingdate Chickmass Tarsuslength Ringingage meanmaxTspecific Rainfallspecific
+##   &lt;date&gt;     &lt;chr&gt;         &lt;date&gt;       &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;             &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 2004-10-20 26/02/2005    2004-11-29   14/02/2005  3400      n/a                  77             32.6            139. 
+## 2 2004-11-28 02/04/2005    2005-01-06   24/03/2005  2750      143                  77             32.0             57.6
+## 3 2004-11-16 21/03/2005    2004-12-26   14/03/2005  3000      153                  78             32.7             69.4
+## 4 2004-10-20 25/02/2005    2004-11-29   14/02/2005  3050      167                  77             32.6            139. 
+## 5 2004-11-26 31/03/2005    2005-01-05   24/03/2005  2250      149                  78             32.1             57.6
+## 6 2004-11-08 12/03/2005    2004-12-18   05/03/2005  2750      155                  77             32.7            143.</code></pre>
 <pre class="r"><code>tail(data[,9:17]) # NOTE: `Fledge date` changes format </code></pre>
 <pre><code>## # A tibble: 6 × 9
-##   `Lay date` `Fledge date` `Hatch date` Ringingdate Chickmass Tarsuslength Ringingage meanmaxTspecific
-##   &lt;date&gt;     &lt;chr&gt;         &lt;date&gt;       &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;             &lt;dbl&gt;            &lt;dbl&gt;
-## 1 2020-10-23 2021/02/24    2020-12-02   15/02/2021  3170      147,37               75             30.6
-## 2 2020-10-23 2021/02/17    2020-12-02   15/02/2022  2950      150,4                75             30.6
-## 3 2020-10-27 2021/03/02    2020-12-06   19/02/2021  2560      151,66               75             30.7
-## 4 2020-10-31 2021/03/08    2020-12-11   24/02/2021  3130      149,92               75             30.9
-## 5 2020-11-02 2021/03/06    2020-12-14   27/02/2021  2850      152,32               75             30.6
-## 6 2020-11-08 2021/03/08    2020-12-18   03/03/2021  2880      138,6                75             30.4
-## # ℹ 1 more variable: Rainfallspecific &lt;dbl&gt;</code></pre>
-<pre class="r"><code>n_a_counts &lt;- sapply(data, function(x) if (is.character(x)) sum(x == &quot;n/a&quot;, na.rm = TRUE) else 0); n_a_counts</code></pre>
-<pre><code>##             Year            Group             Nest        Groupsize             Afem             Amal 
-##                0                0                0                2                6                6 
-##               SA              Juv         Lay date      Fledge date       Hatch date      Ringingdate 
-##                6                6                0               23                0                0 
-##        Chickmass     Tarsuslength       Ringingage meanmaxTspecific Rainfallspecific 
-##                1                2                0                0                0</code></pre>
+##   `Lay date` `Fledge date` `Hatch date` Ringingdate Chickmass Tarsuslength Ringingage meanmaxTspecific Rainfallspecific
+##   &lt;date&gt;     &lt;chr&gt;         &lt;date&gt;       &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;             &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 2020-10-23 2021/02/24    2020-12-02   15/02/2021  3170      147,37               75             30.6             435 
+## 2 2020-10-23 2021/02/17    2020-12-02   15/02/2022  2950      150,4                75             30.6             472 
+## 3 2020-10-27 2021/03/02    2020-12-06   19/02/2021  2560      151,66               75             30.7             478 
+## 4 2020-10-31 2021/03/08    2020-12-11   24/02/2021  3130      149,92               75             30.9             392 
+## 5 2020-11-02 2021/03/06    2020-12-14   27/02/2021  2850      152,32               75             30.6             392.
+## 6 2020-11-08 2021/03/08    2020-12-18   03/03/2021  2880      138,6                75             30.4             259.</code></pre>
+<pre class="r"><code>n_a_counts &lt;- sapply(data, function(x) {
+  if (is.character(x)) {
+    sum(x == &quot;n/a&quot;) 
+  } else {
+    0
+  }
+}) 
+n_a_counts</code></pre>
+<pre><code>##             Year            Group             Nest        Groupsize             Afem             Amal               SA              Juv         Lay date 
+##                0                0                0                2                6                6                6                6                0 
+##      Fledge date       Hatch date      Ringingdate        Chickmass     Tarsuslength       Ringingage meanmaxTspecific Rainfallspecific 
+##               23                0                0                1                2                0                0                0</code></pre>
 </div>
 <div id="data-tyding" class="section level3">
 <h3>Data tyding</h3>
-<pre class="r"><code># Replace &quot;n/a&quot; and empty strings with proper NA
-tidy_data  &lt;- data %&gt;%
-  mutate(across(where(is.character), ~ na_if(.x, &quot;n/a&quot;))) %&gt;%
-  mutate(across(where(is.character), ~ na_if(.x, &quot;&quot;))) 
-n_a_counts &lt;- sapply(data, function(x) if (is.character(x)) sum(x == &quot;n/a&quot;, na.rm = TRUE) else 0); n_a_counts</code></pre>
-<pre><code>##             Year            Group             Nest        Groupsize             Afem             Amal 
-##                0                0                0                2                6                6 
-##               SA              Juv         Lay date      Fledge date       Hatch date      Ringingdate 
-##                6                6                0               23                0                0 
-##        Chickmass     Tarsuslength       Ringingage meanmaxTspecific Rainfallspecific 
-##                1                2                0                0                0</code></pre>
-<pre class="r"><code>tidy_data &lt;- tidy_data  %&gt;%
-  mutate(
-    # Convert to Date safely, replacing invalid values with NA
-    `Lay date` = suppressWarnings(as.Date(`Lay date`, format = &quot;%Y-%m-%d&quot;)),
-    `Hatch date` = suppressWarnings(as.Date(`Hatch date`, format = &quot;%Y-%m-%d&quot;)),
-    Ringingdate = suppressWarnings(as.Date(Ringingdate, format = &quot;%d/%m/%Y&quot;)),
-    
-    # Handle mixed Fledge date formats and invalid cases
-    `Fledge date` = case_when(
-      str_detect(`Fledge date`, &quot;^\\d{4}/&quot;) ~ suppressWarnings(ymd(str_replace(`Fledge date`, &quot;/&quot;, &quot;-&quot;))),
-      str_detect(`Fledge date`, &quot;^\\d{2}/\\d{2}/\\d{4}$&quot;) ~ suppressWarnings(dmy(`Fledge date`)),
-      TRUE ~ NA_Date_
-    ),
-    
-    # Convert to numeric safely, replacing non-numeric values with NA
-    Groupsize = suppressWarnings(as.numeric(Groupsize)),
-    Chickmass = suppressWarnings(as.numeric(Chickmass)),
-    Tarsuslength = suppressWarnings(as.numeric(Tarsuslength)),
+<pre class="r"><code># Identify columns
+date_cols &lt;- c(&quot;Lay date&quot;, &quot;Fledge date&quot;, &quot;Hatch date&quot;, &quot;Ringingdate&quot;)
+numeric_cols &lt;- c(&quot;Groupsize&quot;, &quot;Chickmass&quot;, &quot;Tarsuslength&quot;)
+factor_cols &lt;- c(&quot;Year&quot;, &quot;Group&quot;, &quot;Nest&quot;)
 
-    # Convert to factor
-    Year = as.factor(Year),
-    Group = as.factor(Group),
-    Nest = as.factor(Nest)
-  )
+tidy_data &lt;- data %&gt;%
+  # Replace &quot;n/a&quot; and &quot;&quot; with NA for character columns
+  mutate(across(where(is.character), ~ na_if(., &quot;n/a&quot;))) %&gt;%
+  mutate(across(where(is.character), ~ na_if(., &quot;&quot;))) %&gt;%
+  
+   # Convert to date (handling multiple formats) and remove time part
+  mutate(across(all_of(date_cols), 
+                ~ as.Date(parse_date_time(., orders = c(&quot;Y-m-d&quot;, &quot;d/m/Y&quot;, &quot;Y/m/d&quot;))))) %&gt;%
+  
+  # Replace commas with periods in Tarsuslength and convert it to numeric
+  mutate(Tarsuslength = as.numeric(gsub(&quot;,&quot;, &quot;.&quot;, Tarsuslength))) %&gt;%
+  
+  # Convert to numeric for other columns
+  mutate(across(all_of(numeric_cols), as.numeric)) %&gt;%
+  
+  # Convert to factor for categorical columns
+  mutate(across(all_of(factor_cols), as.factor))
 
-# Identify problematic rows where NA was introduced
-problematic_rows &lt;- data %&gt;%
-  filter(
-    is.na(tidy_data$`Fledge date`) &amp; !is.na(`Fledge date`) |
-    is.na(tidy_data$Tarsuslength) &amp; !is.na(Tarsuslength)
-  )
-length(problematic_rows)</code></pre>
-<pre><code>## [1] 17</code></pre>
-<pre class="r"><code>print(problematic_rows[,1:8])</code></pre>
-<pre><code>## # A tibble: 31 × 8
-##    Year      Group        Nest         Groupsize Afem  Amal  SA    Juv  
-##    &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-##  1 2004-2005 Addger       Addger       5         1     3     0     1    
-##  2 2004-2005 Rhino Road   Rhino Road   5         1     2     1     1    
-##  3 2007-2008 Addger       Addger       n/a       n/a   n/a   n/a   n/a  
-##  4 2007-2008 De Luca      De Luca      3         1     1     0     1    
-##  5 2007-2008 Giraffe      Giraffe      5         1     3     0     1    
-##  6 2007-2008 Janovsky     Janovsky     4         1     2     0     1    
-##  7 2007-2008 Johnniesdale Johnniesdale 4         1     2     0     1    
-##  8 2007-2008 Karan Khaya  Karan Khaya  5         1     2     0     2    
-##  9 2007-2008 Pitlochry    Pitlochry    5         1     2     1     1    
-## 10 2007-2008 Rhino Road   Rhino Road   4         1     2     0     1    
-## # ℹ 21 more rows</code></pre>
-<pre class="r"><code>print(problematic_rows[,9:17])</code></pre>
-<pre><code>## # A tibble: 31 × 9
-##    `Lay date` `Fledge date` `Hatch date` Ringingdate Chickmass Tarsuslength Ringingage meanmaxTspecific
-##    &lt;date&gt;     &lt;chr&gt;         &lt;date&gt;       &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt;             &lt;dbl&gt;            &lt;dbl&gt;
-##  1 2004-10-20 26/02/2005    2004-11-29   14/02/2005  3400      n/a                  77             32.6
-##  2 2004-10-30 06/03/2005    2004-12-09   27/02/2005  3300      n/a                  80             32.5
-##  3 2007-11-12 n/a           2007-12-22   11/03/2008  3050      154                  80             30.8
-##  4 2007-11-03 n/a           2007-12-13   29/02/2008  n/a       147                  78             30.0
-##  5 2007-11-26 n/a           2008-01-05   20/03/2008  3100      152                  75             30.7
-##  6 2007-10-27 n/a           2007-12-06   09/02/2008  2950      146                  65             29.2
-##  7 2007-10-29 n/a           2007-12-08   22/02/2008  3200      150                  76             29.5
-##  8 2007-10-27 n/a           2007-12-06   10/02/2008  2700      139                  66             29.1
-##  9 2007-10-31 n/a           2007-12-10   23/02/2008  2550      151                  75             29.8
-## 10 2007-10-20 n/a           2007-11-29   10/02/2008  3450      142                  73             29.1
-## # ℹ 21 more rows
-## # ℹ 1 more variable: Rainfallspecific &lt;dbl&gt;</code></pre>
+dim(tidy_data)</code></pre>
+<pre><code>## [1] 88 17</code></pre>
+<pre class="r"><code>summary(tidy_data)</code></pre>
+<pre><code>##         Year             Group              Nest      Groupsize         Afem               Amal                SA                Juv               Lay date         
+##  2006-2007:11   Karan Khaya :11   Karan Khaya :11   Min.   :2.000   Length:88          Length:88          Length:88          Length:88          Min.   :2004-10-15  
+##  2007-2008: 9   Addger      : 9   Addger      :10   1st Qu.:3.000   Class :character   Class :character   Class :character   Class :character   1st Qu.:2007-07-27  
+##  2013-2014: 9   Janovsky    : 8   Janovsky    : 8   Median :4.000   Mode  :character   Mode  :character   Mode  :character   Mode  :character   Median :2013-10-29  
+##  2004-2005: 8   Johnniesdale: 8   Hull        : 5   Mean   :4.233                                                                               Mean   :2013-01-18  
+##  2017-2018: 8   Copenhagen  : 7   Johnniesdale: 5   3rd Qu.:5.000                                                                               3rd Qu.:2017-10-20  
+##  2019-2020: 7   Rhino Road  : 7   Rhino Road  : 5   Max.   :7.000                                                                               Max.   :2020-11-08  
+##  (Other)  :36   (Other)     :38   (Other)     :44   NA&#39;s   :2                                                                                                       
+##   Fledge date           Hatch date          Ringingdate           Chickmass     Tarsuslength     Ringingage    meanmaxTspecific Rainfallspecific
+##  Min.   :2005-02-18   Min.   :2004-11-24   Min.   :2005-02-13   Min.   :2150   Min.   :128.0   Min.   :53.00   Min.   :29.06    Min.   : 30.4   
+##  1st Qu.:2007-02-21   1st Qu.:2007-09-05   1st Qu.:2007-11-16   1st Qu.:2765   1st Qu.:144.0   1st Qu.:72.00   1st Qu.:30.75    1st Qu.:118.8   
+##  Median :2014-02-14   Median :2013-12-08   Median :2014-02-17   Median :3100   Median :151.3   Median :75.00   Median :31.52    Median :150.6   
+##  Mean   :2013-02-21   Mean   :2013-02-26   Mean   :2013-05-15   Mean   :3079   Mean   :150.9   Mean   :73.26   Mean   :31.56    Mean   :196.3   
+##  3rd Qu.:2018-01-29   3rd Qu.:2017-11-28   3rd Qu.:2018-02-10   3rd Qu.:3260   3rd Qu.:156.0   3rd Qu.:76.00   3rd Qu.:32.32    3rd Qu.:274.2   
+##  Max.   :2029-02-18   Max.   :2020-12-18   Max.   :2022-02-15   Max.   :4150   Max.   :179.0   Max.   :81.00   Max.   :34.71    Max.   :542.0   
+##  NA&#39;s   :23                                                     NA&#39;s   :1      NA&#39;s   :2</code></pre>
+<pre class="r"><code>colSums(is.na(tidy_data))</code></pre>
+<pre><code>##             Year            Group             Nest        Groupsize             Afem             Amal               SA              Juv         Lay date 
+##                0                0                0                2                6                6                6                6                0 
+##      Fledge date       Hatch date      Ringingdate        Chickmass     Tarsuslength       Ringingage meanmaxTspecific Rainfallspecific 
+##               23                0                0                1                2                0                0                0</code></pre>
 <pre class="r"><code># demographic groups to long format and compute incubation period
 tidy_data &lt;- tidy_data %&gt;%
   pivot_longer(
@@ -543,25 +511,30 @@ tidy_data &lt;- tidy_data %&gt;%
         incubation_period = as.numeric(`Hatch date` - `Lay date`)  # Compute incubation period 
          ) 
 
-head(tidy_data)</code></pre>
-<pre><code>## # A tibble: 6 × 16
-##   Year      Group    Nest  Groupsize `Lay date` `Fledge date` `Hatch date` Ringingdate Chickmass Tarsuslength
-##   &lt;fct&gt;     &lt;fct&gt;    &lt;fct&gt;     &lt;dbl&gt; &lt;date&gt;     &lt;date&gt;        &lt;date&gt;       &lt;date&gt;          &lt;dbl&gt;        &lt;dbl&gt;
-## 1 2004-2005 Addger   Addg…         5 2004-10-20 2005-02-26    2004-11-29   2005-02-14       3400           NA
-## 2 2004-2005 Addger   Addg…         5 2004-10-20 2005-02-26    2004-11-29   2005-02-14       3400           NA
-## 3 2004-2005 Addger   Addg…         5 2004-10-20 2005-02-26    2004-11-29   2005-02-14       3400           NA
-## 4 2004-2005 Addger   Addg…         5 2004-10-20 2005-02-26    2004-11-29   2005-02-14       3400           NA
-## 5 2004-2005 Caroline Caro…         3 2004-11-28 2005-04-02    2005-01-06   2005-03-24       2750          143
-## 6 2004-2005 Caroline Caro…         3 2004-11-28 2005-04-02    2005-01-06   2005-03-24       2750          143
-## # ℹ 6 more variables: Ringingage &lt;dbl&gt;, meanmaxTspecific &lt;dbl&gt;, Rainfallspecific &lt;dbl&gt;, Age_Sex_Class &lt;fct&gt;,
-## #   Count &lt;int&gt;, incubation_period &lt;dbl&gt;</code></pre>
-<pre class="r"><code>colSums(is.na(tidy_data))</code></pre>
-<pre><code>##              Year             Group              Nest         Groupsize          Lay date       Fledge date 
-##                 0                 0                 0                 8                 0                92 
-##        Hatch date       Ringingdate         Chickmass      Tarsuslength        Ringingage  meanmaxTspecific 
-##                 0                 0                 4                32                 0                 0 
-##  Rainfallspecific     Age_Sex_Class             Count incubation_period 
-##                 0                 0                24                 0</code></pre>
+dim(tidy_data)</code></pre>
+<pre><code>## [1] 352  16</code></pre>
+<pre class="r"><code>summary(tidy_data)</code></pre>
+<pre><code>##         Year              Group               Nest       Groupsize        Lay date           Fledge date           Hatch date          Ringingdate        
+##  2006-2007: 44   Karan Khaya : 44   Karan Khaya : 44   Min.   :2.000   Min.   :2004-10-15   Min.   :2005-02-18   Min.   :2004-11-24   Min.   :2005-02-13  
+##  2007-2008: 36   Addger      : 36   Addger      : 40   1st Qu.:3.000   1st Qu.:2007-07-27   1st Qu.:2007-02-21   1st Qu.:2007-09-05   1st Qu.:2007-11-16  
+##  2013-2014: 36   Janovsky    : 32   Janovsky    : 32   Median :4.000   Median :2013-10-29   Median :2014-02-14   Median :2013-12-08   Median :2014-02-17  
+##  2004-2005: 32   Johnniesdale: 32   Hull        : 20   Mean   :4.233   Mean   :2013-01-18   Mean   :2013-02-21   Mean   :2013-02-26   Mean   :2013-05-15  
+##  2017-2018: 32   Copenhagen  : 28   Johnniesdale: 20   3rd Qu.:5.000   3rd Qu.:2017-10-20   3rd Qu.:2018-01-29   3rd Qu.:2017-11-28   3rd Qu.:2018-02-10  
+##  2019-2020: 28   Rhino Road  : 28   Rhino Road  : 20   Max.   :7.000   Max.   :2020-11-08   Max.   :2029-02-18   Max.   :2020-12-18   Max.   :2022-02-15  
+##  (Other)  :144   (Other)     :152   (Other)     :176   NA&#39;s   :8                            NA&#39;s   :92                                                    
+##    Chickmass     Tarsuslength     Ringingage    meanmaxTspecific Rainfallspecific Age_Sex_Class     Count       incubation_period
+##  Min.   :2150   Min.   :128.0   Min.   :53.00   Min.   :29.06    Min.   : 30.4    Afem:88       Min.   :0.000   Min.   :29.0     
+##  1st Qu.:2750   1st Qu.:144.0   1st Qu.:72.00   1st Qu.:30.75    1st Qu.:118.8    Amal:88       1st Qu.:1.000   1st Qu.:39.0     
+##  Median :3100   Median :151.3   Median :75.00   Median :31.52    Median :150.6    Juv :88       Median :1.000   Median :40.0     
+##  Mean   :3079   Mean   :150.9   Mean   :73.26   Mean   :31.56    Mean   :196.3    SA  :88       Mean   :1.052   Mean   :39.7     
+##  3rd Qu.:3270   3rd Qu.:156.0   3rd Qu.:76.00   3rd Qu.:32.32    3rd Qu.:274.2                  3rd Qu.:1.000   3rd Qu.:40.0     
+##  Max.   :4150   Max.   :179.0   Max.   :81.00   Max.   :34.71    Max.   :542.0                  Max.   :4.000   Max.   :47.0     
+##  NA&#39;s   :4      NA&#39;s   :8                                                                       NA&#39;s   :24</code></pre>
+<pre class="r"><code>colSums(is.na(tidy_data)) # NAs are multiplied by 4 here due to duplication</code></pre>
+<pre><code>##              Year             Group              Nest         Groupsize          Lay date       Fledge date        Hatch date       Ringingdate         Chickmass 
+##                 0                 0                 0                 8                 0                92                 0                 0                 4 
+##      Tarsuslength        Ringingage  meanmaxTspecific  Rainfallspecific     Age_Sex_Class             Count incubation_period 
+##                 8                 0                 0                 0                 0                24                 0</code></pre>
 </div>
 
 
