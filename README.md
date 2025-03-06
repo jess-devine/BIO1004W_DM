@@ -33,6 +33,7 @@ meamaxTspecific - the average daily mean maximum temperature (in degrees Celsius
 Rainfallspecific - the total amount of rainfall (in mm) that occurred between hatching and the ringingdate
 
 Code scripts and workflows
+0_main.R
 1_data_tidying.Rmd 
 2_data_analysis.Rmd 
 

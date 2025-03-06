@@ -1,5 +1,5 @@
 ---
-title: "data_analysis.R"
+title: "tidy_data_analysis.R"
 author: "Jess Devine"
 date: "2025-03-06"
 output: html_document
@@ -16,22 +16,29 @@ library(car)
 library(FSA) 
 library(lubridate)
 library(stringr)
+library(lme4)
+library(here)
 
 ```
+# Aim:
+To determine if incubation period and chick mass vary with rainfall and/or mean maximum temperature, as well as group size. 
+# Hypothese: 
+1) Decreased rainfall will be associated with decreased chick mass and will have no association with incubation period. 
+2) Increased mean maximum temperature will be associated with decreased chick mass and incubation period.
+3) These effects will be buffered by group size. 
 
-
-```{r plots for data exploration}
+```{r tidy_data_exploration}
 # Function to create scatterplots
-create_scatter <- function(data, x_var, y_var, x_label, y_label) {
-  ggplot(data, aes(x = {{ x_var }}, y = {{ y_var }})) +
+create_scatter <- function(tidy_data, x_var, y_var, x_label, y_label) {
+  ggplot(tidy_data, aes(x = {{ x_var }}, y = {{ y_var }})) +
     geom_point(color = "black", alpha = 0.7, size = 0.5) +  
     theme_minimal() +
     labs(x = x_label, y = y_label)
 }
 
 # Function to create boxplots
-create_boxplot <- function(data, x_var, y_var, x_label, y_label) {
-  ggplot(data, aes(x = as.factor({{ x_var }}), y = {{ y_var }})) +
+create_boxplot <- function(tidy_data, x_var, y_var, x_label, y_label) {
+  ggplot(tidy_data, aes(x = as.factor({{ x_var }}), y = {{ y_var }})) +
     geom_boxplot() +
     theme_minimal() +
     labs(x = x_label, y = y_label)
@@ -54,16 +61,37 @@ p6 <- create_boxplot(tidy_data, Groupsize, Chickmass, "Group Size", "")
 
 Figure 1: The incubation period of eggs (top panel) and mass of chicks (bottom panel) plotted against rainfall in mm (left panel), mean maximum temperature °C (middle panel) and group size (right panel). 
 
-```{r analysis}
+```{r shapiro}
 # Shapiro-Wilk test for normality
 shapiro.test(tidy_data$incubation_period)  
 shapiro.test(tidy_data$Chickmass) 
+```
 
+Both variables (incubation period and chick mass) do not follow a normal distribution based on the Shapiro-Wilk test.
+However, the degree of departure from normality is more pronounced in incubation period, with a much lower test statistic and a highly significant p-value.
+
+```{r kruskal-wallis}
 # Kruskal-Wallis Test 
 kruskal.test(incubation_period ~ as.factor(Groupsize), data = tidy_data)
 kruskal.test(Chickmass ~ as.factor(Groupsize), data = tidy_data)
+```
+There are significant differences in both incubation period () and chick mass () across different group size categories.
 
+```{r dunn}
 # Dunn’s test for pairwise comparisons
 dunnTest(incubation_period ~ as.factor(Groupsize), data = tidy_data, method = "bonferroni")
 dunnTest(Chickmass ~ as.factor(Groupsize), data = tidy_data, method = "bonferroni")
 ``` 
+
+```{r GLMM}
+
+# Model for incubation period with random intercepts by group size
+mixed_model_incubation <- glmer(incubation_period ~ Rainfallspecific + meanmaxTspecific + Groupsize + Rainfallspecific*meanmaxTspecific + (1|Groupsize), 
+                                family = Gamma(link = "log"), 
+                                data = tidy_data)
+summary(mixed_model_incubation)
+
+mixed_model_chickmass <- lmer(Chickmass ~ Rainfallspecific + meanmaxTspecific + (1|Groupsize), data = tidy_data)
+summary(mixed_model_chickmass)
+
+```

@@ -483,23 +483,25 @@ factor_cols &lt;- c(&quot;Year&quot;, &quot;Group&quot;, &quot;Nest&quot;)
 
 tidy_data &lt;- data %&gt;%
   # Replace &quot;n/a&quot; and &quot;&quot; with NA for character columns
-  mutate(across(where(is.character), ~ na_if(., &quot;n/a&quot;))) %&gt;%
-  mutate(across(where(is.character), ~ na_if(., &quot;&quot;))) %&gt;%
+  mutate(across(where(is.character), ~ na_if(na_if(., &quot;n/a&quot;), &quot;&quot;))) %&gt;%
   
    # Convert to date (handling multiple formats) and remove time part
   mutate(across(all_of(date_cols), 
                 ~ as.Date(parse_date_time(., orders = c(&quot;Y-m-d&quot;, &quot;d/m/Y&quot;, &quot;Y/m/d&quot;))))) %&gt;%
   
-  # Replace commas with periods in Tarsuslength and convert it to numeric
-  mutate(Tarsuslength = as.numeric(gsub(&quot;,&quot;, &quot;.&quot;, Tarsuslength))) %&gt;%
-  
-  # Convert to numeric for other columns
-  mutate(across(all_of(numeric_cols), as.numeric)) %&gt;%
+  # Convert to numeric 
+  mutate(
+    across(all_of(numeric_cols), as.numeric),
+    Tarsuslength = as.numeric(gsub(&quot;,&quot;, &quot;.&quot;, Tarsuslength))
+  ) %&gt;% 
   
   # Convert to factor for categorical columns
-  mutate(across(all_of(factor_cols), as.factor))
-
-dim(tidy_data)</code></pre>
+  mutate(across(all_of(factor_cols), as.factor))</code></pre>
+<pre><code>## Warning: There was 1 warning in `mutate()`.
+## ℹ In argument: `across(all_of(numeric_cols), as.numeric)`.
+## Caused by warning:
+## ! NAs introduced by coercion</code></pre>
+<pre class="r"><code>dim(tidy_data)</code></pre>
 <pre><code>## [1] 88 17</code></pre>
 <pre class="r"><code>summary(tidy_data)</code></pre>
 <pre><code>##         Year             Group              Nest      Groupsize    
@@ -528,12 +530,12 @@ dim(tidy_data)</code></pre>
 ##                       NA&#39;s   :23                               
 ##   Ringingdate           Chickmass     Tarsuslength     Ringingage   
 ##  Min.   :2005-02-13   Min.   :2150   Min.   :128.0   Min.   :53.00  
-##  1st Qu.:2007-11-16   1st Qu.:2765   1st Qu.:144.0   1st Qu.:72.00  
-##  Median :2014-02-17   Median :3100   Median :151.3   Median :75.00  
-##  Mean   :2013-05-15   Mean   :3079   Mean   :150.9   Mean   :73.26  
-##  3rd Qu.:2018-02-10   3rd Qu.:3260   3rd Qu.:156.0   3rd Qu.:76.00  
+##  1st Qu.:2007-11-16   1st Qu.:2765   1st Qu.:143.8   1st Qu.:72.00  
+##  Median :2014-02-17   Median :3100   Median :152.0   Median :75.00  
+##  Mean   :2013-05-15   Mean   :3079   Mean   :151.0   Mean   :73.26  
+##  3rd Qu.:2018-02-10   3rd Qu.:3260   3rd Qu.:156.2   3rd Qu.:76.00  
 ##  Max.   :2022-02-15   Max.   :4150   Max.   :179.0   Max.   :81.00  
-##                       NA&#39;s   :1      NA&#39;s   :2                      
+##                       NA&#39;s   :1      NA&#39;s   :8                      
 ##  meanmaxTspecific Rainfallspecific
 ##  Min.   :29.06    Min.   : 30.4   
 ##  1st Qu.:30.75    1st Qu.:118.8   
@@ -550,7 +552,7 @@ dim(tidy_data)</code></pre>
 ##         Lay date      Fledge date       Hatch date      Ringingdate 
 ##                0               23                0                0 
 ##        Chickmass     Tarsuslength       Ringingage meanmaxTspecific 
-##                1                2                0                0 
+##                1                8                0                0 
 ## Rainfallspecific 
 ##                0</code></pre>
 <pre class="r"><code># demographic groups to long format and compute incubation period
@@ -586,12 +588,12 @@ dim(tidy_data)</code></pre>
 ##                       NA&#39;s   :92                               
 ##   Ringingdate           Chickmass     Tarsuslength     Ringingage   
 ##  Min.   :2005-02-13   Min.   :2150   Min.   :128.0   Min.   :53.00  
-##  1st Qu.:2007-11-16   1st Qu.:2750   1st Qu.:144.0   1st Qu.:72.00  
-##  Median :2014-02-17   Median :3100   Median :151.3   Median :75.00  
-##  Mean   :2013-05-15   Mean   :3079   Mean   :150.9   Mean   :73.26  
-##  3rd Qu.:2018-02-10   3rd Qu.:3270   3rd Qu.:156.0   3rd Qu.:76.00  
+##  1st Qu.:2007-11-16   1st Qu.:2750   1st Qu.:143.8   1st Qu.:72.00  
+##  Median :2014-02-17   Median :3100   Median :152.0   Median :75.00  
+##  Mean   :2013-05-15   Mean   :3079   Mean   :151.0   Mean   :73.26  
+##  3rd Qu.:2018-02-10   3rd Qu.:3270   3rd Qu.:156.2   3rd Qu.:76.00  
 ##  Max.   :2022-02-15   Max.   :4150   Max.   :179.0   Max.   :81.00  
-##                       NA&#39;s   :4      NA&#39;s   :8                      
+##                       NA&#39;s   :4      NA&#39;s   :32                     
 ##  meanmaxTspecific Rainfallspecific Age_Sex_Class     Count      
 ##  Min.   :29.06    Min.   : 30.4    Afem:88       Min.   :0.000  
 ##  1st Qu.:30.75    1st Qu.:118.8    Amal:88       1st Qu.:1.000  
@@ -608,13 +610,13 @@ dim(tidy_data)</code></pre>
 ##  3rd Qu.:40.0     
 ##  Max.   :47.0     
 ## </code></pre>
-<pre class="r"><code>colSums(is.na(tidy_data)) # NAs are multiplied by 4 here due to duplication</code></pre>
+<pre class="r"><code>colSums(is.na(tidy_data)) # NAs are multiplied by 4 here due to duplication caused by pivoting longer </code></pre>
 <pre><code>##              Year             Group              Nest         Groupsize 
 ##                 0                 0                 0                 8 
 ##          Lay date       Fledge date        Hatch date       Ringingdate 
 ##                 0                92                 0                 0 
 ##         Chickmass      Tarsuslength        Ringingage  meanmaxTspecific 
-##                 4                 8                 0                 0 
+##                 4                32                 0                 0 
 ##  Rainfallspecific     Age_Sex_Class             Count incubation_period 
 ##                 0                 0                24                 0</code></pre>
 </div>

@@ -15,6 +15,8 @@ if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 # Load packages
 library(tidyverse)
 library(here)
+
+setwd(here())
 ```
 
 ### Import data
@@ -50,18 +52,17 @@ factor_cols <- c("Year", "Group", "Nest")
 
 tidy_data <- data %>%
   # Replace "n/a" and "" with NA for character columns
-  mutate(across(where(is.character), ~ na_if(., "n/a"))) %>%
-  mutate(across(where(is.character), ~ na_if(., ""))) %>%
+  mutate(across(where(is.character), ~ na_if(na_if(., "n/a"), ""))) %>%
   
    # Convert to date (handling multiple formats) and remove time part
   mutate(across(all_of(date_cols), 
                 ~ as.Date(parse_date_time(., orders = c("Y-m-d", "d/m/Y", "Y/m/d"))))) %>%
   
-  # Replace commas with periods in Tarsuslength and convert it to numeric
-  mutate(Tarsuslength = as.numeric(gsub(",", ".", Tarsuslength))) %>%
-  
-  # Convert to numeric for other columns
-  mutate(across(all_of(numeric_cols), as.numeric)) %>%
+  # Convert to numeric 
+  mutate(
+    across(all_of(numeric_cols), as.numeric),
+    Tarsuslength = as.numeric(gsub(",", ".", Tarsuslength))
+  ) %>% 
   
   # Convert to factor for categorical columns
   mutate(across(all_of(factor_cols), as.factor))
@@ -72,7 +73,7 @@ colSums(is.na(tidy_data))
 ```
 
 
-```{r extra}
+```{r pivot_longer}
 # demographic groups to long format and compute incubation period
 tidy_data <- tidy_data %>%
   pivot_longer(
@@ -87,5 +88,5 @@ tidy_data <- tidy_data %>%
 
 dim(tidy_data)
 summary(tidy_data)
-colSums(is.na(tidy_data)) # NAs are multiplied by 4 here due to duplication
+colSums(is.na(tidy_data)) # NAs are multiplied by 4 here due to duplication caused by pivoting longer 
 ```
