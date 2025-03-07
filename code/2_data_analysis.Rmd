@@ -19,6 +19,8 @@ library(stringr)
 library(lme4)
 library(here)
 library(moments)
+library(fitdistrplus)
+library(mgcv)
 
 ```
 
@@ -145,7 +147,7 @@ Let's try
 
 ########################
 
-```{r shapiro}
+```{r normailty}
 # QQ plots
 ggplot(tidy_data, aes(sample = Chickmass)) + 
   stat_qq() + stat_qq_line() +
@@ -156,30 +158,72 @@ ggplot(tidy_data, aes(sample = incubation_period)) +
   theme_minimal()
 
 # Shapiro-Wilk test for normality
-shapiro.test(tidy_data$incubation_period)  
 shapiro.test(tidy_data$Chickmass) 
+shapiro.test(tidy_data$incubation_period)  
 
-descdist(tidy_data$incubation_period, discrete = FALSE)
 tidy_data_filtered <- tidy_data %>% filter(!is.na(Chickmass))
 descdist(tidy_data_filtered$Chickmass, discrete = FALSE)
+descdist(tidy_data$incubation_period, discrete = FALSE)
 ```
 
-Both variables (incubation period and chick mass) do not follow a normal distribution based on the Shapiro-Wilk test and the QQ plots but Chickmass is far closer to normal. 
+Both variables (incubation period and chick mass) do not follow a normal distribution based on the Shapiro-Wilk test. However, chick mass is closer to normal than incubation period. Chick mass could use a log transformation and incubation period a Weibull (due to high kurtosis ie heavy tails).  
 
 ```{r kruskal-wallis}
 # Kruskal-Wallis Test 
 kruskal.test(incubation_period ~ as.factor(Groupsize), data = tidy_data)
 kruskal.test(Chickmass ~ as.factor(Groupsize), data = tidy_data)
+kruskal.test(incubation_period ~ Rainfallspecific, data = tidy_data)
+kruskal.test(Chickmass ~ Rainfallspecific, data = tidy_data)
+kruskal.test(incubation_period ~ meanmaxTspecific, data = tidy_data)
+kruskal.test(Chickmass ~ meanmaxTspecific, data = tidy_data)
 ```
 There are significant differences in both incubation period () and chick mass () across different group size categories.
 
 ```{r dunn}
 # Dunn’s test for pairwise comparisons
-dunnTest(incubation_period ~ as.factor(Groupsize), data = tidy_data, method = "bonferroni")
 dunnTest(Chickmass ~ as.factor(Groupsize), data = tidy_data, method = "bonferroni")
+dunnTest(incubation_period ~ as.factor(Groupsize), data = tidy_data, method = "bonferroni")
 ``` 
+The chick mass of clutches of groups of size seven differs significantly from the chick mass of groups of size two (p adjusted = 0.0004), three (p adjusted = 0.0009) and four (p adjusted = 0.0009); and marginally from groups of size five (p adjusted = 0.0080). Groups of size 6 did not have significantly differnt chick mass. Therefore, the largest group size was associated with higher chick mass than nearly all other groups sizes. This suggests that being in a larger group is beneficial.  
+<br>
+The incubation period of clutches of groups of size six differs significantly from the incubation period of groups of size two(p adjusted = 0.001), three (p adjusted = 0.001) and seven (p adjusted = 0.010); and marginally from groups of size four (p adjusted = 0.067). Therefore, the incubation period of clutches of group size 6 was significantly lower than other group sizes. 
 
-```{r GLMM}
 
+```{r GAM_chickmass}
+m1 = gam(log(Chickmass) ~ s(Rainfallspecific), data = tidy_data)
+m2 = gam(log(Chickmass) ~ s(meanmaxTspecific), data = tidy_data)
+m3 = gam(log(Chickmass) ~ te(Groupsize), data = tidy_data)
+
+m4 = gam(log(Chickmass) ~ s(Rainfallspecific) + te(Groupsize), data = tidy_data)
+m5 = gam(log(Chickmass) ~ s(meanmaxTspecific) + te(Groupsize), data = tidy_data)
+m6 = gam(log(Chickmass) ~ s(meanmaxTspecific) + s(Rainfallspecific), data = tidy_data)
+
+m7 = gam(log(Chickmass) ~ s(meanmaxTspecific) + s(Rainfallspecific) + te(Groupsize), data = tidy_data)
+m8 = gam(log(Chickmass) ~ s(meanmaxTspecific) + te(Rainfallspecific, Groupsize), data = tidy_data)
+m9 = gam(log(Chickmass) ~ te(meanmaxTspecific, Groupsize) + s(Rainfallspecific), data = tidy_data)
+m10 = gam(log(Chickmass) ~ te(meanmaxTspecific, Rainfallspecific) + te(Groupsize), data = tidy_data)
+m11 = gam(log(Chickmass) ~ te(Rainfallspecific, meanmaxTspecific, Groupsize), data = tidy_data) 
+
+
+# Store models in a list
+models <- list(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14)
+
+# Loop through models and extract AIC
+aic_values <- sapply(models, function(m) AIC(m))
+
+# Print AIC values for each model
+aic_results <- data.frame(Model = paste0("m", 1:14), AIC = aic_values)
+
+# Find the best model (lowest AIC)
+best_model <- aic_results[which.min(aic_results$AIC), ]
+cat("Chick mass: best model based on AIC:", best_model$Model, "with AIC =", best_model$AIC, "\n")
+
+```
+
+```{r assumptions}
+plot(m14)
+gam.check(m14)
+hist(residuals(m14))
+qqnorm(residuals(m14))
 
 ```
