@@ -1,7 +1,7 @@
 ---
-title: "Data Management and Reproducible Research Deliverable: <br> Data Tidying"
+title: "Data Management and Reproducible Research Deliverable"
 author: "Jess Devine"
-date: "2025-02-20"
+date: "20/2/2025"
 output: html_document
 ---
 
@@ -16,13 +16,13 @@ if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
 library(tidyverse)
 library(here)
 
-setwd(here())
 ```
 
 ### Import data
 
-```{r import data}
+```{r import_data}
 # import data 
+setwd(here())
 data <- read_csv2(here("data", "Chick_condition.csv"))
 
 # checking data
@@ -89,4 +89,10 @@ tidy_data <- tidy_data %>%
 dim(tidy_data)
 summary(tidy_data)
 colSums(is.na(tidy_data)) # NAs are multiplied by 4 here due to duplication caused by pivoting longer 
+```
+
+```{r output}
+# Re-save the data as an RDS file
+setwd(here())
+saveRDS(tidy_data, "data/tidy_data.rds")
 ```

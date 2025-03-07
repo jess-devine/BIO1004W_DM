@@ -20,6 +20,13 @@ library(lme4)
 library(here)
 
 ```
+
+```{r import data}
+# load tidied data 
+setwd(here())
+tidy_data <- readRDS(here("data", "tidy_data.rds"))
+```
+
 # Aim:
 To determine if incubation period and chick mass vary with rainfall and/or mean maximum temperature, as well as group size. 
 # Hypothese: 
