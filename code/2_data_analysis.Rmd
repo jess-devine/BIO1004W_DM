@@ -21,6 +21,10 @@ library(here)
 library(moments)
 library(fitdistrplus)
 library(mgcv)
+library(mgcv)
+library(dplyr)
+library(purrr)
+library(VGAM)
 
 ```
 
@@ -164,6 +168,7 @@ shapiro.test(tidy_data$incubation_period)
 tidy_data_filtered <- tidy_data %>% filter(!is.na(Chickmass))
 descdist(tidy_data_filtered$Chickmass, discrete = FALSE)
 descdist(tidy_data$incubation_period, discrete = FALSE)
+
 ```
 
 Both variables (incubation period and chick mass) do not follow a normal distribution based on the Shapiro-Wilk test. However, chick mass is closer to normal than incubation period. Chick mass could use a log transformation and incubation period a Weibull (due to high kurtosis ie heavy tails).  
@@ -188,42 +193,164 @@ The chick mass of clutches of groups of size seven differs significantly from th
 <br>
 The incubation period of clutches of groups of size six differs significantly from the incubation period of groups of size two(p adjusted = 0.001), three (p adjusted = 0.001) and seven (p adjusted = 0.010); and marginally from groups of size four (p adjusted = 0.067). Therefore, the incubation period of clutches of group size 6 was significantly lower than other group sizes. 
 
-
 ```{r GAM_chickmass}
-m1 = gam(log(Chickmass) ~ s(Rainfallspecific), data = tidy_data)
-m2 = gam(log(Chickmass) ~ s(meanmaxTspecific), data = tidy_data)
-m3 = gam(log(Chickmass) ~ te(Groupsize), data = tidy_data)
+# Define formulas
+formulas <- list(
+  log(Chickmass) ~ s(Rainfallspecific),
+  log(Chickmass) ~ s(meanmaxTspecific),
+  log(Chickmass) ~ te(Groupsize),
+  log(Chickmass) ~ s(Rainfallspecific) + te(Groupsize),
+  log(Chickmass) ~ s(meanmaxTspecific) + te(Groupsize),
+  log(Chickmass) ~ s(meanmaxTspecific) + s(Rainfallspecific),
+  log(Chickmass) ~ s(meanmaxTspecific) + s(Rainfallspecific) + te(Groupsize),
+  log(Chickmass) ~ s(meanmaxTspecific) + te(Rainfallspecific, Groupsize),
+  log(Chickmass) ~ te(meanmaxTspecific, Groupsize) + s(Rainfallspecific),
+  log(Chickmass) ~ te(meanmaxTspecific, Rainfallspecific) + te(Groupsize),
+  log(Chickmass) ~ te(Rainfallspecific, meanmaxTspecific, Groupsize)
+)
 
-m4 = gam(log(Chickmass) ~ s(Rainfallspecific) + te(Groupsize), data = tidy_data)
-m5 = gam(log(Chickmass) ~ s(meanmaxTspecific) + te(Groupsize), data = tidy_data)
-m6 = gam(log(Chickmass) ~ s(meanmaxTspecific) + s(Rainfallspecific), data = tidy_data)
+# Create tibble with model names
+chickmass_models <- tibble(
+  Model_Name = paste0("chickmass_model_", 1:length(formulas)),
+  Formula = formulas
+) %>%
+  mutate(Model = map(Formula, ~ gam(.x, data = tidy_data)))
 
-m7 = gam(log(Chickmass) ~ s(meanmaxTspecific) + s(Rainfallspecific) + te(Groupsize), data = tidy_data)
-m8 = gam(log(Chickmass) ~ s(meanmaxTspecific) + te(Rainfallspecific, Groupsize), data = tidy_data)
-m9 = gam(log(Chickmass) ~ te(meanmaxTspecific, Groupsize) + s(Rainfallspecific), data = tidy_data)
-m10 = gam(log(Chickmass) ~ te(meanmaxTspecific, Rainfallspecific) + te(Groupsize), data = tidy_data)
-m11 = gam(log(Chickmass) ~ te(Rainfallspecific, meanmaxTspecific, Groupsize), data = tidy_data) 
+# Add AIC column and sort by best AIC
+chickmass_models <- chickmass_models %>%
+  mutate(AIC = map_dbl(Model, AIC)) %>%
+  arrange(AIC)
 
+# Best model (tibble row)
+best_model_info <- chickmass_models %>% slice(1)
 
-# Store models in a list
-models <- list(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14)
+# Extract the best model object
+best_chickmass_model <- best_model_info$Model[[1]]
 
-# Loop through models and extract AIC
-aic_values <- sapply(models, function(m) AIC(m))
-
-# Print AIC values for each model
-aic_results <- data.frame(Model = paste0("m", 1:14), AIC = aic_values)
-
-# Find the best model (lowest AIC)
-best_model <- aic_results[which.min(aic_results$AIC), ]
-cat("Chick mass: best model based on AIC:", best_model$Model, "with AIC =", best_model$AIC, "\n")
-
+# Print the best model name and AIC
+cat("Best model based on AIC:", best_model_info$Model_Name, "with AIC =", best_model_info$AIC, "\n")
 ```
 
 ```{r assumptions}
-plot(m14)
-gam.check(m14)
-hist(residuals(m14))
-qqnorm(residuals(m14))
+plot(best_chickmass_model)
+gam.check(best_chickmass_model)
+hist(residuals(best_chickmass_model))
+qqnorm(residuals(best_chickmass_model))
 
+```
+
+```{r GAM_ip}
+
+# Fit Poisson GAM models
+m1 <- gam(incubation_period ~ s(Rainfallspecific), family = poisson, data = tidy_data)
+m2 <- gam(incubation_period ~ s(meanmaxTspecific), family = poisson, data = tidy_data)
+m3 <- gam(incubation_period ~ te(Groupsize), family = poisson, data = tidy_data)
+
+m4 <- gam(incubation_period ~ s(Rainfallspecific) + te(Groupsize), family = poisson, data = tidy_data)
+m5 <- gam(incubation_period ~ s(meanmaxTspecific) + te(Groupsize), family = poisson, data = tidy_data)
+m6 <- gam(incubation_period ~ s(meanmaxTspecific) + s(Rainfallspecific), family = poisson, data = tidy_data)
+
+m7 <- gam(incubation_period ~ s(meanmaxTspecific) + s(Rainfallspecific) + te(Groupsize), family = poisson, data = tidy_data)
+m8 <- gam(incubation_period ~ s(meanmaxTspecific) + te(Rainfallspecific, Groupsize), family = poisson, data = tidy_data)
+m9 <- gam(incubation_period ~ te(meanmaxTspecific, Groupsize) + s(Rainfallspecific), family = poisson, data = tidy_data)
+m10 <- gam(incubation_period ~ te(meanmaxTspecific, Rainfallspecific) + te(Groupsize), family = poisson, data = tidy_data)
+m11 <- gam(incubation_period ~ te(Rainfallspecific, meanmaxTspecific, Groupsize), family = poisson, data = tidy_data)
+
+# Store models in a list
+models <- list(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11)
+
+# Extract AIC values
+aic_values <- sapply(models, AIC)
+
+# Create AIC results dataframe
+aic_results <- tibble(Model = paste0("m", 1:length(models)), AIC = aic_values)
+
+# Best model based on AIC
+best_model <- aic_results %>% filter(AIC == min(AIC))
+print(best_model)
+
+# Check for overdispersion
+poisson_dispersion <- sum(residuals(models[[as.numeric(gsub("m", "", best_model$Model))]])^2) /
+  df.residual(models[[as.numeric(gsub("m", "", best_model$Model))]])
+cat("Poisson dispersion:", poisson_dispersion, "\n")
+
+# If dispersion >> 1.5, refit using Negative Binomial or Quasi-Poisson
+if (poisson_dispersion > 1.5) {
+  cat("Overdispersion detected, refitting with Negative Binomial and Quasi-Poisson...\n")
+
+  # Extract best model formula
+  best_formula <- formula(models[[as.numeric(gsub("m", "", best_model$Model))]])
+
+  # Fit Negative Binomial and Quasi-Poisson models
+  m_nb <- gam(best_formula, family = nb, data = tidy_data)
+  m_qp <- gam(best_formula, family = quasipoisson, data = tidy_data)
+
+  # Compare AIC (for NB) and QAIC (for Quasi-Poisson)
+  aic_nb <- AIC(m_nb)
+  dev_qp <- sum(residuals(m_qp, type = "deviance")^2)
+  df_qp <- df.residual(m_qp)
+  qaic_qp <- AIC(m_qp, k = (dev_qp / df_qp))
+
+  cat("Negative Binomial AIC:", aic_nb, "\n")
+  cat("Quasi-Poisson QAIC:", qaic_qp, "\n")
+
+  if (aic_nb < qaic_qp) {
+    cat("Final model: Negative Binomial (m_nb)\n")
+    final_model <- m_nb
+  } else {
+    cat("Final model: Quasi-Poisson (m_qp)\n")
+    final_model <- m_qp
+  }
+} else {
+  cat("No overdispersion detected, keeping Poisson model.\n")
+  final_model <- models[[as.numeric(gsub("m", "", best_model$Model))]]
+}
+
+summary(final_model)
+
+```
+
+```{r assumptions_ip_poisson}
+plot(final_model)
+gam.check(final_model)
+hist(residuals(final_model))
+qqnorm(residuals(final_model))
+```
+
+```{r ip_truncated_Poisson}
+# Define formulas
+formulas <- list(
+  incubation_period ~ s(Rainfallspecific),
+  incubation_period ~ s(meanmaxTspecific),
+  incubation_period ~ te(Groupsize),
+  incubation_period ~ s(Rainfallspecific) + te(Groupsize),
+  incubation_period ~ s(meanmaxTspecific) + te(Groupsize),
+  incubation_period ~ s(meanmaxTspecific) + s(Rainfallspecific),
+  incubation_period ~ s(meanmaxTspecific) + s(Rainfallspecific) + te(Groupsize),
+  incubation_period ~ s(meanmaxTspecific) + te(Rainfallspecific, Groupsize),
+  incubation_period ~ te(meanmaxTspecific, Groupsize) + s(Rainfallspecific),
+  incubation_period ~ te(meanmaxTspecific, Rainfallspecific) + te(Groupsize),
+  incubation_period ~ te(Rainfallspecific, meanmaxTspecific, Groupsize)
+)
+
+# Fit truncated Poisson models
+models <- map(formulas, ~ gam(.x, family = quasipoisson(), data = tidy_data))
+
+
+# Store results in a tibble
+model_results <- tibble(
+  Model_Name = paste0("incubation_model_", 1:length(formulas)),
+  Formula = formulas,
+  Model = models,
+  AIC = map_dbl(models, AIC)
+) %>% arrange(AIC)
+
+# Best model
+best_model <- model_results %>% slice(1)
+cat("Best model based on AIC:", best_model$Model_Name, "with AIC =", best_model$AIC, "\n")
+
+# Overdispersion check
+residual_deviance <- sum(residuals(best_model$Model, type = "deviance")^2)
+dispersion <- residual_deviance / df.residual(best_model$Model)
+cat("Truncated Poisson dispersion:", dispersion, "\n")
 ```
