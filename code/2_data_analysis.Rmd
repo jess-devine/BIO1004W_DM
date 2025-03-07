@@ -18,6 +18,7 @@ library(lubridate)
 library(stringr)
 library(lme4)
 library(here)
+library(moments)
 
 ```
 
@@ -28,54 +29,142 @@ tidy_data <- readRDS(here("data", "tidy_data.rds"))
 ```
 
 # Aim:
-To determine if incubation period and chick mass vary with rainfall and/or mean maximum temperature, as well as group size. 
-# Hypothese: 
-1) Decreased rainfall will be associated with decreased chick mass and will have no association with incubation period. 
-2) Increased mean maximum temperature will be associated with decreased chick mass and incubation period.
+To determine if incubation period and chick mass vary with rainfall and/or mean maximum temperature, as well as group size. <br>
+
+## Hypothese:
+
+1) Decreased rainfall will be associated with decreased chick mass and will have no association with incubation period. <br>
+2) Increased mean maximum temperature will be associated with decreased chick mass and incubation period. <br>
 3) These effects will be buffered by group size. 
 
-```{r tidy_data_exploration}
-# Function to create scatterplots
-create_scatter <- function(tidy_data, x_var, y_var, x_label, y_label) {
-  ggplot(tidy_data, aes(x = {{ x_var }}, y = {{ y_var }})) +
-    geom_point(color = "black", alpha = 0.7, size = 0.5) +  
-    theme_minimal() +
-    labs(x = x_label, y = y_label)
+```{r distributions}
+
+plot_histograms_cleaned <- function(data) {
+  vars <- c("Chickmass", "incubation_period", "Rainfallspecific", "meanmaxTspecific", "Groupsize")
+  
+  # Define units for each variable
+  units <- c("Chick Mass (g)", "Incubation Period (days)", "Rainfall (mm)", 
+             "Mean Max Temperature (°C)", "Group Size (count)")
+  
+  plots <- list()  # Store plots
+  
+  for (i in seq_along(vars)) {
+    var <- vars[i]
+    temp_data <- data
+    
+    # Remove NAs only for Chickmass and Groupsize
+    if (var %in% c("Chickmass", "Groupsize")) {
+      temp_data <- temp_data[!is.na(temp_data[[var]]), ]
+    }
+    
+    # Adaptive bin width calculation
+    bin_width <- (max(temp_data[[var]], na.rm = TRUE) - min(temp_data[[var]], na.rm = TRUE)) / 30  
+    
+    # Create histogram
+    p <- ggplot(temp_data, aes_string(x = var)) + 
+      geom_histogram(binwidth = bin_width, fill = "grey", color = "black", alpha = 0.7) +
+      labs(x = units[i], y = "Frequency") +  # Use labeled units
+      theme_minimal()
+    
+    plots[[i]] <- p  # Store the plot
+  }
+  
+  # Arrange all histograms in a panel (2 rows, 3 columns)
+  final_plot <- (plots[[1]] + plots[[2]]) / (plots[[3]] + plots[[4]] + plots[[5]]) +
+    plot_layout(guides = "collect")
+  
+  print(final_plot)  # Display the panel
 }
 
+# Call the function on your dataset
+plot_histograms_cleaned(tidy_data)
+
+
+```
+<br> **Figure 1:** The distributions of variables of interest. 
+
+Group size looks somewhat noramlly ditributed but the other variables are not noramlly distributed.
+
+```{r outliers}
+
+```
+
+```{r tidy_data_exploration}
+
+# Function to create scatterplots with r-value annotation
+create_scatter <- function(data, x_var, y_var, x_label, y_label) {
+  cor_value <- cor(data[[x_var]], data[[y_var]], use = "complete.obs")  # Compute correlation
+  
+  ggplot(data, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+    geom_point(color = "black", alpha = 0.7, size = 0.5) +  
+    theme_minimal() +
+    labs(x = x_label, y = y_label) +
+    annotate("text", 
+             x = max(data[[x_var]], na.rm = TRUE),  
+             y = max(data[[y_var]], na.rm = TRUE),  
+             label = paste0("r = ", round(cor_value, 2)),  
+             hjust = 1.1, vjust = 1.1,  
+             size = 3, color = "darkred") + # Adjust text size & color
+    theme(
+      axis.text = element_text(size = 7)     # Adjusts tick label size
+    )
+}
+
+
 # Function to create boxplots
-create_boxplot <- function(tidy_data, x_var, y_var, x_label, y_label) {
-  ggplot(tidy_data, aes(x = as.factor({{ x_var }}), y = {{ y_var }})) +
+create_boxplot <- function(data, x_var, y_var, x_label, y_label) {
+  ggplot(data, aes(x = as.factor(.data[[x_var]]), y = .data[[y_var]])) +
     geom_boxplot() +
     theme_minimal() +
     labs(x = x_label, y = y_label)
 }
 
+# Remove NAs only from relevant variables
+tidy_data_filtered <- tidy_data %>%
+  drop_na(Rainfallspecific, meanmaxTspecific, incubation_period, Chickmass, Groupsize)
+
 # Incubation Period Plots
-p1 <- create_scatter(tidy_data, Rainfallspecific, incubation_period, "", "Incubation Period (days)")
-p2 <- create_scatter(tidy_data, meanmaxTspecific, incubation_period, "", "")
-p3 <- create_boxplot(tidy_data, Groupsize, incubation_period, "", "")
+p1 <- create_scatter(tidy_data_filtered, "Rainfallspecific", "incubation_period", "Rainfall (mm)", "Incubation Period (days)")
+p2 <- create_scatter(tidy_data_filtered, "meanmaxTspecific", "incubation_period", "Mean Max Temperature (°C)", "")
+p3 <- create_boxplot(tidy_data_filtered, "Groupsize", "incubation_period", "Group Size", "")
 
 # Chick Mass Plots
-p4 <- create_scatter(tidy_data, Rainfallspecific, Chickmass, "Rainfall (mm)", "Chick Mass (g)")
-p5 <- create_scatter(tidy_data, meanmaxTspecific, Chickmass, "Mean Max Temperature (°C)", "")
-p6 <- create_boxplot(tidy_data, Groupsize, Chickmass, "Group Size", "")
+p4 <- create_scatter(tidy_data_filtered, "Rainfallspecific", "Chickmass", "Rainfall (mm)", "Chick Mass (g)")
+p5 <- create_scatter(tidy_data_filtered, "meanmaxTspecific", "Chickmass", "Mean Max Temperature (°C)", "")
+p6 <- create_boxplot(tidy_data_filtered, "Groupsize", "Chickmass", "Group Size", "")
 
-# Arrange in 2x3 panel layout
-(p1 + p2 + p3) / (p4 + p5 + p6)
-
+# Arrange plots in a 2x3 panel
+(p4 + p5 + p6) / (p1 + p2 + p3)
 ```
 
-Figure 1: The incubation period of eggs (top panel) and mass of chicks (bottom panel) plotted against rainfall in mm (left panel), mean maximum temperature °C (middle panel) and group size (right panel). 
+**Figure 2:** The incubation period of eggs (top panel) and mass of chicks (bottom panel) plotted against rainfall in mm (left panel), mean maximum temperature °C (middle panel) and group size (right panel). 
+
+The relationship between chick mass and group size looks promising. There don't seem to be any linear relationships. 
+
+Let's try 
+
+########################
 
 ```{r shapiro}
+# QQ plots
+ggplot(tidy_data, aes(sample = Chickmass)) + 
+  stat_qq() + stat_qq_line() +
+  theme_minimal()
+
+ggplot(tidy_data, aes(sample = incubation_period)) + 
+  stat_qq() + stat_qq_line() +
+  theme_minimal()
+
 # Shapiro-Wilk test for normality
 shapiro.test(tidy_data$incubation_period)  
 shapiro.test(tidy_data$Chickmass) 
+
+descdist(tidy_data$incubation_period, discrete = FALSE)
+tidy_data_filtered <- tidy_data %>% filter(!is.na(Chickmass))
+descdist(tidy_data_filtered$Chickmass, discrete = FALSE)
 ```
 
-Both variables (incubation period and chick mass) do not follow a normal distribution based on the Shapiro-Wilk test.
-However, the degree of departure from normality is more pronounced in incubation period, with a much lower test statistic and a highly significant p-value.
+Both variables (incubation period and chick mass) do not follow a normal distribution based on the Shapiro-Wilk test and the QQ plots but Chickmass is far closer to normal. 
 
 ```{r kruskal-wallis}
 # Kruskal-Wallis Test 
@@ -92,13 +181,5 @@ dunnTest(Chickmass ~ as.factor(Groupsize), data = tidy_data, method = "bonferron
 
 ```{r GLMM}
 
-# Model for incubation period with random intercepts by group size
-mixed_model_incubation <- glmer(incubation_period ~ Rainfallspecific + meanmaxTspecific + Groupsize + Rainfallspecific*meanmaxTspecific + (1|Groupsize), 
-                                family = Gamma(link = "log"), 
-                                data = tidy_data)
-summary(mixed_model_incubation)
-
-mixed_model_chickmass <- lmer(Chickmass ~ Rainfallspecific + meanmaxTspecific + (1|Groupsize), data = tidy_data)
-summary(mixed_model_chickmass)
 
 ```
