@@ -1,19 +1,19 @@
 # BIO1004W_DM
-# Jess Devine
 Biological sciences honours introduction to data management and reproducible research deliverable.
+Jess Devine
 
 myBinder link: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jess-devine/BIO4000W_DM/HEAD) 
 
-ACCESS INFORMATION
+## ACCESS INFORMATION
 1. Licenses/restrictions placed on the data or code
 CC BY 4.0
 2. Data derived from other sources: 
 Middleton K. (2022). Hot-dry weather is associated with worse reproductive outcomes regardless of group composition in a long-lived cooperatively breeding bird. University of Cape Town accessible at https://zivahub.uct.ac.za/articles/dataset/Hot-dry_weather_is_associated_with_worse_reproductive_outcomes_regardless_of_group_composition_in_a_long-lived_cooperatively_breeding_bird/27980420?file=51027938 
 
-DATA & CODE FILE OVERVIEW
+## DATA & CODE FILE OVERVIEW
 This data repository consist of two data file, three code script, and this README document, with the following data and code filenames and variables:
 
-Data files and variables
+### Data files and variables
 
 1. File name: Chick condition.csv
 Variable names and descriptions (some data not used in the analyses of breeding attempt but are artifacts from other analyses):
@@ -53,12 +53,12 @@ Age_Sex_Class - the demographic class: Afem (adult female), Amal (adult male), J
 Count - the number of individuals in a particular demographic class within the specific group of birds monitored
 incubation_period - the incubation period of the clutch of eggs (in days) 
 
-Code scripts and workflows
+### Code scripts and workflows
 0_main.R
 1_data_tidying.Rmd 
 2_data_analysis.Rmd 
 
-# SOFTWARE VERSIONS
+## SOFTWARE VERSIONS
 
 R version 4.4.3 (2025-02-28)
 Platform: x86_64-pc-linux-gnu
