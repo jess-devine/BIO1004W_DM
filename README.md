@@ -1,13 +1,13 @@
 # BIO1004W_DM
-Biological sciences honours introduction to data management and reproducible research deliverable.
+Biological sciences honours introduction to data management and reproducible research deliverable. <br>
 Jess Devine
 
 myBinder link: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jess-devine/BIO4000W_DM/HEAD) 
 
 ## ACCESS INFORMATION
-1. Licenses/restrictions placed on the data or code
-CC BY 4.0
-2. Data derived from other sources: 
+1. Licenses/restrictions placed on the data or code <br>
+CC BY 4.0 <br>
+2. Data derived from other sources: <br>
 Middleton K. (2022). Hot-dry weather is associated with worse reproductive outcomes regardless of group composition in a long-lived cooperatively breeding bird. University of Cape Town accessible at https://zivahub.uct.ac.za/articles/dataset/Hot-dry_weather_is_associated_with_worse_reproductive_outcomes_regardless_of_group_composition_in_a_long-lived_cooperatively_breeding_bird/27980420?file=51027938 
 
 ## DATA & CODE FILE OVERVIEW
@@ -15,48 +15,48 @@ This data repository consist of two data file, three code script, and this READM
 
 ### Data files and variables
 
-1. File name: Chick condition.csv
-Variable names and descriptions (some data not used in the analyses of breeding attempt but are artifacts from other analyses):
-Year - the breeding season in which breeding did or did not occur
-Group - the specific group of birds monitored
-Nest - the nest site used if breeding did occur
-Groupsize - the number of individuals within the group
-Afem - the number of adult females within the group
-Amal - the number of adult males within the group
-SA - the number of sub-adults of either sex within the group
-Juv - the number of juveniles within the group
-Laydate - the date which the first egg was laid
-Fledgedate - the date that the nestling fledged from the nest
-Hatch date - the date the egg hatched
-Ringingdate - the date the chick was ringed prior to fledging
-Chickmass - the mass of the chick (in g) on the ringingdate
-Tarsuslength - the tarsus length of the chick (in mm) on the ringingdate
-Ringingage - the age of the chick from hatching (in days) when ringing and measurements were conducted
-meamaxTspecific - the average daily mean maximum temperature (in degrees Celsius) between hatching and the ringingdate
-Rainfallspecific - the total amount of rainfall (in mm) that occurred between hatching and the ringingdate
+1. File name: Chick condition.csv <br>
+Variable names and descriptions (some data not used in the analyses of breeding attempt but are artifacts from other analyses): <br>
+Year - the breeding season in which breeding did or did not occur <br>
+Group - the specific group of birds monitored <br>
+Nest - the nest site used if breeding did occur <br>
+Groupsize - the number of individuals within the group <br>
+Afem - the number of adult females within the group <br>
+Amal - the number of adult males within the group <br>
+SA - the number of sub-adults of either sex within the group <br>
+Juv - the number of juveniles within the group <br>
+Laydate - the date which the first egg was laid <br>
+Fledgedate - the date that the nestling fledged from the nest <br>
+Hatch date - the date the egg hatched <br>
+Ringingdate - the date the chick was ringed prior to fledging <br>
+Chickmass - the mass of the chick (in g) on the ringingdate <br>
+Tarsuslength - the tarsus length of the chick (in mm) on the ringingdate <br>
+Ringingage - the age of the chick from hatching (in days) when ringing and measurements were conducted <br>
+meamaxTspecific - the average daily mean maximum temperature (in degrees Celsius) between hatching and the ringingdate <br>
+Rainfallspecific - the total amount of rainfall (in mm) that occurred between hatching and the ringingdate <br>
 
-2. File name: tidy_data.csv
-Year - the breeding season in which breeding did or did not occur
-Group - the specific group of birds monitored
-Nest - the nest site used if breeding did occur
-Groupsize - the number of individuals within the group
-Laydate - the date which the first egg was laid
-Fledgedate - the date that the nestling fledged from the nest
-Hatch date - the date the egg hatched
-Ringingdate - the date the chick was ringed prior to fledging
-Chickmass - the mass of the chick (in g) on the ringingdate
-Tarsuslength - the tarsus length of the chick (in mm) on the ringingdate
-Ringingage - the age of the chick from hatching (in days) when ringing and measurements were conducted
-meamaxTspecific - the average daily mean maximum temperature (in degrees Celsius) between hatching and the ringingdate
-Rainfallspecific - the total amount of rainfall (in mm) that occurred between hatching and the ringingdate
-Age_Sex_Class - the demographic class: Afem (adult female), Amal (adult male), Juv (juvenile), or SA (sub-adults of either sex)
-Count - the number of individuals in a particular demographic class within the specific group of birds monitored
-incubation_period - the incubation period of the clutch of eggs (in days) 
+2. File name: tidy_data.csv <br>
+Year - the breeding season in which breeding did or did not occur <br>
+Group - the specific group of birds monitored <br>
+Nest - the nest site used if breeding did occur <br>
+Groupsize - the number of individuals within the group <br>
+Laydate - the date which the first egg was laid <br>
+Fledgedate - the date that the nestling fledged from the nest <br>
+Hatch date - the date the egg hatched <br>
+Ringingdate - the date the chick was ringed prior to fledging <br>
+Chickmass - the mass of the chick (in g) on the ringingdate <br>
+Tarsuslength - the tarsus length of the chick (in mm) on the ringingdate <br>
+Ringingage - the age of the chick from hatching (in days) when ringing and measurements were conducted <br>
+meamaxTspecific - the average daily mean maximum temperature (in degrees Celsius) between hatching and the ringingdate <br>
+Rainfallspecific - the total amount of rainfall (in mm) that occurred between hatching and the ringingdate <br>
+Age_Sex_Class - the demographic class: Afem (adult female), Amal (adult male), Juv (juvenile), or SA (sub-adults of either sex) <br>
+Count - the number of individuals in a particular demographic class within the specific group of birds monitored <br>
+incubation_period - the incubation period of the clutch of eggs (in days)  <br>
 
 ### Code scripts and workflows
-0_main.R
-1_data_tidying.Rmd 
-2_data_analysis.Rmd 
+0_main.R  <br>
+1_data_tidying.Rmd  <br>
+2_data_analysis.Rmd  <br>
 
 ## SOFTWARE VERSIONS
 
