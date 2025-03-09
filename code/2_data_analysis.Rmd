@@ -8,23 +8,18 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+# Install and load required packages
+packages <- c("tidyverse", "here", "patchwork", "FSA", "lubridate", "fitdistrplus", "mgcv")
+
+# Install missing packages
+install_if_missing <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
+}
+
+lapply(packages, install_if_missing)
+
 # Load packages
-library(tidyverse)
-library(patchwork)
-library(dplyr)
-library(car)
-library(FSA) 
-library(lubridate)
-library(stringr)
-library(lme4)
-library(here)
-library(moments)
-library(fitdistrplus)
-library(mgcv)
-library(mgcv)
-library(dplyr)
-library(purrr)
-library(VGAM)
+lapply(packages, library, character.only = TRUE)
 
 ```
 
@@ -90,10 +85,6 @@ plot_histograms_cleaned(tidy_data)
 <br> **Figure 1:** The distributions of variables of interest. 
 
 Group size looks somewhat noramlly ditributed but the other variables are not noramlly distributed.
-
-```{r outliers}
-
-```
 
 ```{r tidy_data_exploration}
 
@@ -177,10 +168,6 @@ Both variables (incubation period and chick mass) do not follow a normal distrib
 # Kruskal-Wallis Test 
 kruskal.test(incubation_period ~ as.factor(Groupsize), data = tidy_data)
 kruskal.test(Chickmass ~ as.factor(Groupsize), data = tidy_data)
-kruskal.test(incubation_period ~ Rainfallspecific, data = tidy_data)
-kruskal.test(Chickmass ~ Rainfallspecific, data = tidy_data)
-kruskal.test(incubation_period ~ meanmaxTspecific, data = tidy_data)
-kruskal.test(Chickmass ~ meanmaxTspecific, data = tidy_data)
 ```
 There are significant differences in both incubation period () and chick mass () across different group size categories.
 
@@ -316,41 +303,4 @@ gam.check(final_model)
 hist(residuals(final_model))
 qqnorm(residuals(final_model))
 ```
-
-```{r ip_truncated_Poisson}
-# Define formulas
-formulas <- list(
-  incubation_period ~ s(Rainfallspecific),
-  incubation_period ~ s(meanmaxTspecific),
-  incubation_period ~ te(Groupsize),
-  incubation_period ~ s(Rainfallspecific) + te(Groupsize),
-  incubation_period ~ s(meanmaxTspecific) + te(Groupsize),
-  incubation_period ~ s(meanmaxTspecific) + s(Rainfallspecific),
-  incubation_period ~ s(meanmaxTspecific) + s(Rainfallspecific) + te(Groupsize),
-  incubation_period ~ s(meanmaxTspecific) + te(Rainfallspecific, Groupsize),
-  incubation_period ~ te(meanmaxTspecific, Groupsize) + s(Rainfallspecific),
-  incubation_period ~ te(meanmaxTspecific, Rainfallspecific) + te(Groupsize),
-  incubation_period ~ te(Rainfallspecific, meanmaxTspecific, Groupsize)
-)
-
-# Fit truncated Poisson models
-models <- map(formulas, ~ gam(.x, family = quasipoisson(), data = tidy_data))
-
-
-# Store results in a tibble
-model_results <- tibble(
-  Model_Name = paste0("incubation_model_", 1:length(formulas)),
-  Formula = formulas,
-  Model = models,
-  AIC = map_dbl(models, AIC)
-) %>% arrange(AIC)
-
-# Best model
-best_model <- model_results %>% slice(1)
-cat("Best model based on AIC:", best_model$Model_Name, "with AIC =", best_model$AIC, "\n")
-
-# Overdispersion check
-residual_deviance <- sum(residuals(best_model$Model, type = "deviance")^2)
-dispersion <- residual_deviance / df.residual(best_model$Model)
-cat("Truncated Poisson dispersion:", dispersion, "\n")
-```
+<br> In summary these models aren't fitting well but I don't think this was the point of this assignment so I'm going to spot now.

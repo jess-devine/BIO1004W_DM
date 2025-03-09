@@ -2,22 +2,6 @@
 # Jess Devine
 # 6/3/2025 
 
-# Install necessary packages if not already installed
-required_packages <- c("tidyverse", "here", "lubridate", "car", "FSA", "patchwork", "dplyr", "stringr")
-new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]
-if (length(new_packages)) install.packages(new_packages)
-
-# Load libraries
-library(tidyverse)
-library(here)
-library(lubridate)
-library(car)
-library(FSA)
-library(patchwork)
-library(dplyr)
-library(stringr)
-library(lubridate)
-
 # Set the working directory to the project folder
 setwd(here())
 
@@ -28,4 +12,4 @@ rmarkdown::render("code/1_data_tidying.Rmd", output_dir = "output")
 rmarkdown::render("code/2_data_analysis.Rmd", output_dir = "output")
 
 # Optionally, save workspace if needed for later analysis
-# save.image("workspace.RData")
+save.image("workspace.RData")

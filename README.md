@@ -1,5 +1,6 @@
 # BIO1004W_DM
-Biological sciences honours introduction to data management and reproducible research deliverable. 
+# Jess Devine
+Biological sciences honours introduction to data management and reproducible research deliverable.
 
 ACCESS INFORMATION
 1. Licenses/restrictions placed on the data or code
@@ -8,7 +9,7 @@ CC BY 4.0
 Middleton K. (2022). Hot-dry weather is associated with worse reproductive outcomes regardless of group composition in a long-lived cooperatively breeding bird. University of Cape Town accessible at https://zivahub.uct.ac.za/articles/dataset/Hot-dry_weather_is_associated_with_worse_reproductive_outcomes_regardless_of_group_composition_in_a_long-lived_cooperatively_breeding_bird/27980420?file=51027938 
 
 DATA & CODE FILE OVERVIEW
-This data repository consist of two data file, three code script, and this README document, with the following data and code filenames and variables
+This data repository consist of two data file, three code script, and this README document, with the following data and code filenames and variables:
 
 Data files and variables
 
@@ -57,7 +58,7 @@ Code scripts and workflows
 
 # SOFTWARE VERSIONS
 
-R version 4.4.2 (2024-10-31)
+R version 4.4.3 (2025-02-28)
 Platform: x86_64-pc-linux-gnu
 Running under: Ubuntu 22.04.5 LTS
 
@@ -80,15 +81,23 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] lubridate_1.9.3 forcats_1.0.0   stringr_1.5.1   dplyr_1.1.4    
- [5] purrr_1.0.2     readr_2.1.5     tidyr_1.3.1     tibble_3.2.1   
- [9] ggplot2_3.5.1   tidyverse_2.0.0
+ [1] mgcv_1.9-1         nlme_3.1-167       fitdistrplus_1.2-2 survival_3.8-3    
+ [5] MASS_7.3-64        FSA_0.9.6          patchwork_1.3.0    here_1.0.1        
+ [9] lubridate_1.9.3    forcats_1.0.0      stringr_1.5.1      dplyr_1.1.4       
+[13] purrr_1.0.2        readr_2.1.5        tidyr_1.3.1        tibble_3.2.1      
+[17] ggplot2_3.5.1      tidyverse_2.0.0   
 
-
-# REFERENCES
-
-
-
+loaded via a namespace (and not attached):
+ [1] utf8_1.2.4        generics_0.1.3    stringi_1.8.3     lattice_0.22-5   
+ [5] hms_1.1.3         digest_0.6.35     magrittr_2.0.3    evaluate_0.23    
+ [9] grid_4.4.3        timechange_0.3.0  fastmap_1.2.0     rprojroot_2.0.4  
+[13] Matrix_1.7-2      fansi_1.0.6       scales_1.3.0      cli_3.6.2        
+[17] rlang_1.1.3       munsell_0.5.1     splines_4.4.3     withr_3.0.0      
+[21] yaml_2.3.8        tools_4.4.3       tzdb_0.4.0        colorspace_2.1-0 
+[25] vctrs_0.6.5       R6_2.5.1          lifecycle_1.0.4   pkgconfig_2.0.3  
+[29] pillar_1.9.0      gtable_0.3.5      glue_1.7.0        xfun_0.48        
+[33] tidyselect_1.2.1  rstudioapi_0.16.0 knitr_1.46        farver_2.1.1     
+[37] htmltools_0.5.8.1 rmarkdown_2.28    compiler_4.4.3   
 
 
 

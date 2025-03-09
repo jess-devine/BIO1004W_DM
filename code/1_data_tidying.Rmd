@@ -8,13 +8,19 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-# Install tidyverse if not installed
-if (!requireNamespace("tidyverse", quietly = TRUE)) install.packages("tidyverse")
-if (!requireNamespace("here", quietly = TRUE)) install.packages("here")
+# Install and load required packages
+packages <- c("tidyverse", "here")
+
+# Install missing packages
+install_if_missing <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
+}
+
+lapply(packages, install_if_missing)
 
 # Load packages
-library(tidyverse)
-library(here)
+lapply(packages, library, character.only = TRUE)
+
 
 ```
 
