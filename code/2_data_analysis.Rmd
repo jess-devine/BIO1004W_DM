@@ -303,4 +303,4 @@ gam.check(final_model)
 hist(residuals(final_model))
 qqnorm(residuals(final_model))
 ```
-<br> In summary these models aren't fitting well but I don't think this was the point of this assignment so I'm going to spot now.
+<br> In summary these models aren't fitting well but I don't think this was the point of this assignment so I'm going to stop now.
