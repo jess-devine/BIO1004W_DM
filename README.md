@@ -2,6 +2,8 @@
 # Jess Devine
 Biological sciences honours introduction to data management and reproducible research deliverable.
 
+myBinder link: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jess-devine/BIO4000W_DM/HEAD) 
+
 ACCESS INFORMATION
 1. Licenses/restrictions placed on the data or code
 CC BY 4.0
@@ -98,6 +100,8 @@ loaded via a namespace (and not attached):
 [29] pillar_1.9.0      gtable_0.3.5      glue_1.7.0        xfun_0.48        
 [33] tidyselect_1.2.1  rstudioapi_0.16.0 knitr_1.46        farver_2.1.1     
 [37] htmltools_0.5.8.1 rmarkdown_2.28    compiler_4.4.3   
+
+
 
 
 
